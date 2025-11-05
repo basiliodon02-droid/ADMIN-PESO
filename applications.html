@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Applications | SKILLocal Admin</title>
+  <link rel="stylesheet" href="applications.css" />
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+    rel="stylesheet"
+  />
+</head>
+
+<body class="dashboard-body">
+  
+  <aside class="sidebar">
+    <h2 class="logo">SKILlocal</h2>
+    <nav>
+      <a href="dashboard.html">📊 Dashboard</a>
+      <a href="users.html">👥 Users</a>
+      <a href="establishments.html">🏢 Establishments</a>
+      <a href="vacancies.html">💼 Job Vacancies</a>
+      <a href="applications.html" class="active">📄 Applications</a>
+      <a href="matching.html">🔍 Matching</a>
+      <a href="masterdata.html">⚙️ Master Data</a>
+      <a href="profile.html">👤 Profile</a>
+      <a href="login.html" class="logout">Logout</a>
+    </nav>
+  </aside>
+
+ 
+  <main class="main-content">
+    <header class="header">
+      <div>
+        <h1>📄 Applications Management</h1>
+        <p>Monitor and manage job applications from skilled workers in General Santos City.</p>
+      </div>
+      <div class="timestamp" id="timestamp"></div>
+    </header>
+
+    
+    <div class="top-controls">
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search application..." />
+      </div>
+      <button class="btn-add" id="openModalBtn">
+        <i class="bi bi-plus-circle"></i> Add Application
+      </button>
+    </div>
+
+   
+    <section class="applications-section">
+      <div class="card">
+        <h3>Applications List</h3>
+        <div class="table-container">
+          <table id="applicationsTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Applicant Name</th>
+                <th>Job Title</th>
+                <th>Establishment</th>
+                <th>Status</th>
+                <th>Date Applied</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+
+  <div id="appModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="bi bi-file-earmark-plus"></i> Add Application</h2>
+        <span class="close-btn" id="closeModalBtn">&times;</span>
+      </div>
+      <form id="applicationForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="applicantName">Applicant Name</label>
+            <input type="text" id="applicantName" name="applicantName" required />
+          </div>
+          <div class="form-group">
+            <label for="jobTitle">Job Title</label>
+            <input type="text" id="jobTitle" name="jobTitle" required />
+          </div>
+          <div class="form-group">
+            <label for="establishment">Establishment</label>
+            <input type="text" id="establishment" name="establishment" required />
+          </div>
+          <div class="form-group">
+            <label for="status">Status</label>
+            <select id="status" name="status" required>
+              <option value="Pending">Pending</option>
+              <option value="Accepted">Accepted</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="dateApplied">Date Applied</label>
+            <input type="date" id="dateApplied" name="dateApplied" required />
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" id="cancelModalBtn">Cancel</button>
+          <button type="submit" class="btn-save">Save Application</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <div id="viewModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="bi bi-eye-fill"></i> View Application</h2>
+        <span class="close-btn" id="closeViewModal">&times;</span>
+      </div>
+      <div id="viewContent">
+        
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" id="closeViewBtn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  
+  <div id="deleteModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="bi bi-trash-fill"></i> Delete Application</h2>
+        <span class="close-btn" id="closeDeleteModal">&times;</span>
+      </div>
+      <p>Are you sure you want to delete this application?</p>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" id="cancelDeleteBtn">Cancel</button>
+        <button type="button" class="btn-save" id="confirmDeleteBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    
+    function updateTimestamp() {
+      const now = new Date();
+      document.getElementById("timestamp").textContent =
+        now.toLocaleString("en-PH", { dateStyle: "full", timeStyle: "medium" });
+    }
+    setInterval(updateTimestamp, 1000);
+    updateTimestamp();
+
+    
+    const appModal = document.getElementById("appModal");
+    const openModalBtn = document.getElementById("openModalBtn");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    const cancelModalBtn = document.getElementById("cancelModalBtn");
+    const applicationForm = document.getElementById("applicationForm");
+
+    openModalBtn.onclick = () => {
+      appModal.style.display = "flex";
+      applicationForm.dataset.editIndex = "";
+      applicationForm.reset();
+    };
+    closeModalBtn.onclick = cancelModalBtn.onclick = () => (appModal.style.display = "none");
+    window.onclick = e => {
+      if (e.target === appModal) appModal.style.display = "none";
+      if (e.target === viewModal) viewModal.style.display = "none";
+      if (e.target === deleteModal) deleteModal.style.display = "none";
+    };
+
+    
+    function loadApplications() {
+      const tbody = document.querySelector("#applicationsTable tbody");
+      tbody.innerHTML = "";
+      const apps = JSON.parse(localStorage.getItem("applications") || "[]");
+      apps.forEach((app, index) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${app.applicantName}</td>
+          <td>${app.jobTitle}</td>
+          <td>${app.establishment}</td>
+          <td><span class="badge ${app.status === "Accepted" ? "active" : app.status === "Pending" ? "pending" : "inactive"}">${app.status}</span></td>
+          <td>${app.dateApplied}</td>
+          <td class="action-icons">
+            <i class="bi bi-eye-fill icon-view" title="View"></i>
+            <i class="bi bi-pencil-square icon-edit" title="Edit"></i>
+            <i class="bi bi-trash-fill icon-delete" title="Delete"></i>
+          </td>
+        `;
+        tbody.appendChild(tr);
+
+        
+        tr.querySelector(".icon-view").onclick = () => viewApplication(index);
+        tr.querySelector(".icon-edit").onclick = () => editApplication(index);
+        tr.querySelector(".icon-delete").onclick = () => deleteApplication(index);
+      });
+    }
+
+    loadApplications();
+
+    
+    applicationForm.addEventListener("submit", e => {
+      e.preventDefault();
+      const apps = JSON.parse(localStorage.getItem("applications") || "[]");
+      const newApp = {
+        applicantName: applicationForm.applicantName.value,
+        jobTitle: applicationForm.jobTitle.value,
+        establishment: applicationForm.establishment.value,
+        status: applicationForm.status.value,
+        dateApplied: applicationForm.dateApplied.value
+      };
+      const editIndex = applicationForm.dataset.editIndex;
+      if(editIndex) apps[editIndex] = newApp;
+      else apps.push(newApp);
+      localStorage.setItem("applications", JSON.stringify(apps));
+      loadApplications();
+      appModal.style.display = "none";
+      applicationForm.reset();
+    });
+
+    
+    const viewModal = document.getElementById("viewModal");
+    const closeViewModal = document.getElementById("closeViewModal");
+    const closeViewBtn = document.getElementById("closeViewBtn");
+    closeViewModal.onclick = closeViewBtn.onclick = () => viewModal.style.display = "none";
+
+    function viewApplication(index) {
+      const apps = JSON.parse(localStorage.getItem("applications") || "[]");
+      const app = apps[index];
+      document.getElementById("viewContent").innerHTML = `
+        <p><strong>Applicant Name:</strong> ${app.applicantName}</p>
+        <p><strong>Job Title:</strong> ${app.jobTitle}</p>
+        <p><strong>Establishment:</strong> ${app.establishment}</p>
+        <p><strong>Status:</strong> ${app.status}</p>
+        <p><strong>Date Applied:</strong> ${app.dateApplied}</p>
+      `;
+      viewModal.style.display = "flex";
+    }
+
+    
+    function editApplication(index) {
+      const apps = JSON.parse(localStorage.getItem("applications") || "[]");
+      const app = apps[index];
+      applicationForm.applicantName.value = app.applicantName;
+      applicationForm.jobTitle.value = app.jobTitle;
+      applicationForm.establishment.value = app.establishment;
+      applicationForm.status.value = app.status;
+      applicationForm.dateApplied.value = app.dateApplied;
+      applicationForm.dataset.editIndex = index;
+      appModal.style.display = "flex";
+    }
+
+    
+    const deleteModal = document.getElementById("deleteModal");
+    const closeDeleteModal = document.getElementById("closeDeleteModal");
+    const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
+    const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+    let deleteIndex = null;
+
+    function deleteApplication(index) {
+      deleteIndex = index;
+      deleteModal.style.display = "flex";
+    }
+
+    closeDeleteModal.onclick = cancelDeleteBtn.onclick = () => deleteModal.style.display = "none";
+    confirmDeleteBtn.onclick = () => {
+      const apps = JSON.parse(localStorage.getItem("applications") || "[]");
+      apps.splice(deleteIndex, 1);
+      localStorage.setItem("applications", JSON.stringify(apps));
+      loadApplications();
+      deleteModal.style.display = "none";
+    };
+
+    
+    const searchInput = document.getElementById("searchInput");
+    searchInput.addEventListener("keyup", () => {
+      const filter = searchInput.value.toLowerCase();
+      document.querySelectorAll("#applicationsTable tbody tr").forEach(row => {
+        let text = Array.from(row.cells).slice(1,6).map(cell => cell.textContent.toLowerCase()).join(" ");
+        row.style.display = text.includes(filter) ? "" : "none";
+      });
+    });
+  </script>
+</body>
+</html>

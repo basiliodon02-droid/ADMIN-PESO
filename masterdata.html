@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Master Data | SKILLocal Admin</title>
+<link rel="stylesheet" href="masterdata.css" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+</head>
+<body class="dashboard-body">
+
+ 
+  <aside class="sidebar">
+    <h2 class="logo">SKILlocal</h2>
+    <nav>
+      <a href="dashboard.html">📊 Dashboard</a>
+      <a href="users.html">👥 Users</a>
+      <a href="establishments.html">🏢 Establishments</a>
+      <a href="vacancies.html">💼 Job Vacancies</a>
+      <a href="applications.html">📄 Applications</a>
+      <a href="matching.html">🔍 Matching</a>
+      <a href="masterdata.html" class="active">⚙️ Master Data</a>
+      <a href="profile.html">👤 Profile</a>
+      <a href="login.html" class="logout">Logout</a>
+    </nav>
+  </aside>
+
+  
+  <main class="main-content">
+    <header class="header">
+      <div>
+        <h1>⚙️ Master Data Management</h1>
+        <p>Manage reference data for Skilled Workers in General Santos City.</p>
+      </div>
+      <div class="timestamp" id="timestamp"></div>
+    </header>
+
+    
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="barangay">Barangay</button>
+      <button class="tab-btn" data-tab="industry">Industry</button>
+      <button class="tab-btn" data-tab="skilledjob">Skilled Job</button>
+      <button class="tab-btn" data-tab="skills">Skills</button>
+      <button class="tab-btn" data-tab="mapping">Industry–Job Mapping</button>
+    </div>
+
+    
+    <section id="barangay" class="tab-content active">
+      <div class="top-controls">
+        <div class="search-box"><input type="text" id="searchBarangay" placeholder="Search barangay..." /></div>
+        <button class="btn-add" data-modal="barangayModal"><i class="bi bi-plus-circle"></i> Add Barangay</button>
+      </div>
+      <div class="card">
+        <h3>Barangay List (Gensan)</h3>
+        <table id="tableBarangay">
+          <thead><tr><th>#</th><th>Barangay Name</th><th class="text-center">Actions</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Lagao</td><td class="action-icons">
+              <i class="bi bi-pencil-square edit-btn"></i>
+              <i class="bi bi-trash-fill delete-btn"></i>
+            </td></tr>
+            <tr><td>2</td><td>Apopong</td><td class="action-icons">
+              <i class="bi bi-pencil-square edit-btn"></i>
+              <i class="bi bi-trash-fill delete-btn"></i>
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    
+    <section id="industry" class="tab-content">
+      <div class="top-controls">
+        <div class="search-box"><input type="text" id="searchIndustry" placeholder="Search industry..." /></div>
+        <button class="btn-add" data-modal="industryModal"><i class="bi bi-plus-circle"></i> Add Industry</button>
+      </div>
+      <div class="card">
+        <h3>Industry List</h3>
+        <table id="tableIndustry">
+          <thead><tr><th>#</th><th>Industry Name</th><th>Description</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Construction</td><td>Building and infrastructure projects</td><td class="action-icons">
+              <i class="bi bi-pencil-square edit-btn"></i>
+              <i class="bi bi-trash-fill delete-btn"></i>
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    
+    <section id="skilledjob" class="tab-content">
+      <div class="top-controls">
+        <div class="search-box"><input type="text" id="searchJob" placeholder="Search skilled job..." /></div>
+        <button class="btn-add" data-modal="jobModal"><i class="bi bi-plus-circle"></i> Add Skilled Job</button>
+      </div>
+      <div class="card">
+        <h3>Skilled Job List</h3>
+        <table id="tableJob">
+          <thead><tr><th>#</th><th>Job Title</th><th>Industry</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Welder</td><td>Construction</td><td class="action-icons">
+              <i class="bi bi-pencil-square edit-btn"></i>
+              <i class="bi bi-trash-fill delete-btn"></i>
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    
+    <section id="skills" class="tab-content">
+      <div class="top-controls">
+        <div class="search-box"><input type="text" id="searchSkill" placeholder="Search skill..." /></div>
+        <button class="btn-add" data-modal="skillModal"><i class="bi bi-plus-circle"></i> Add Skill</button>
+      </div>
+      <div class="card">
+        <h3>Skills List</h3>
+        <table id="tableSkill">
+          <thead><tr><th>#</th><th>Skill Name</th><th>Related Job</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Metal Welding</td><td>Welder</td><td class="action-icons">
+              <i class="bi bi-pencil-square edit-btn"></i>
+              <i class="bi bi-trash-fill delete-btn"></i>
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- MAPPING TABLE -->
+    <section id="mapping" class="tab-content">
+      <div class="top-controls">
+        <div class="search-box"><input type="text" id="searchMapping" placeholder="Search mapping..." /></div>
+        <button class="btn-add" data-modal="mappingModal"><i class="bi bi-plus-circle"></i> Add Mapping</button>
+      </div>
+      <div class="card">
+        <h3>Industry–Job Mapping</h3>
+        <table id="tableMapping">
+          <thead><tr><th>#</th><th>Industry</th><th>Job Title</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Construction</td><td>Welder</td><td class="action-icons">
+              <i class="bi bi-pencil-square edit-btn"></i>
+              <i class="bi bi-trash-fill delete-btn"></i>
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== ADD MODALS ===== -->
+  <div class="modal-bg" id="barangayModal">
+    <div class="modal">
+      <h2>Add Barangay</h2>
+      <input type="text" placeholder="Barangay Name" id="newBarangay" />
+      <div class="modal-actions">
+        <button class="btn-save" id="saveBarangay">Save</button>
+        <button class="btn-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="industryModal">
+    <div class="modal">
+      <h2>Add Industry</h2>
+      <input type="text" placeholder="Industry Name" id="newIndustry" />
+      <textarea placeholder="Description" id="newIndustryDesc"></textarea>
+      <div class="modal-actions">
+        <button class="btn-save" id="saveIndustry">Save</button>
+        <button class="btn-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="jobModal">
+    <div class="modal">
+      <h2>Add Skilled Job</h2>
+      <input type="text" placeholder="Job Title" id="newJobTitle" />
+      <input type="text" placeholder="Industry" id="newJobIndustry" />
+      <div class="modal-actions">
+        <button class="btn-save" id="saveJob">Save</button>
+        <button class="btn-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="skillModal">
+    <div class="modal">
+      <h2>Add Skill</h2>
+      <input type="text" placeholder="Skill Name" id="newSkillName" />
+      <input type="text" placeholder="Related Job" id="newSkillJob" />
+      <div class="modal-actions">
+        <button class="btn-save" id="saveSkill">Save</button>
+        <button class="btn-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="mappingModal">
+    <div class="modal">
+      <h2>Add Mapping</h2>
+      <input type="text" placeholder="Industry" id="newMapIndustry" />
+      <input type="text" placeholder="Job Title" id="newMapJob" />
+      <div class="modal-actions">
+        <button class="btn-save" id="saveMapping">Save</button>
+        <button class="btn-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="modal-bg" id="editModal">
+    <div class="modal">
+      <h2>Edit Entry</h2>
+      <div class="edit-fields"></div>
+      <div class="modal-actions">
+        <button class="btn-save" id="saveEditBtn">Save</button>
+        <button class="btn-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="deleteModal">
+    <div class="modal">
+      <h2>Confirm Delete</h2>
+      <p id="deleteMessage"></p>
+      <div class="modal-actions">
+        <button class="btn-save" id="confirmDeleteBtn">Delete</button>
+        <button class="btn-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  
+  function updateTimestamp(){
+    document.getElementById("timestamp").textContent = new Date().toLocaleString("en-PH",{dateStyle:"full",timeStyle:"medium"});
+  }
+  setInterval(updateTimestamp,1000);
+  updateTimestamp();
+
+  
+  const tabButtons = document.querySelectorAll(".tab-btn");
+  const tabContents = document.querySelectorAll(".tab-content");
+  tabButtons.forEach(btn=>btn.addEventListener("click",()=>{
+    tabButtons.forEach(b=>b.classList.remove("active"));
+    tabContents.forEach(tc=>tc.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById(btn.dataset.tab).classList.add("active");
+  }));
+
+  
+  function setupSearch(inputId, tableId){
+    const input = document.getElementById(inputId);
+    const table = document.getElementById(tableId);
+    const rows = table.getElementsByTagName("tr");
+    input.addEventListener("keyup",()=>{
+      const filter = input.value.toLowerCase();
+      for(let i=1;i<rows.length;i++){
+        const cells=rows[i].getElementsByTagName("td");
+        let match=false;
+        for(let j=0;j<cells.length-1;j++){
+          if(cells[j].textContent.toLowerCase().includes(filter)){match=true;break;}
+        }
+        rows[i].style.display=match?"":"none";
+      }
+    });
+  }
+  setupSearch("searchBarangay","tableBarangay");
+  setupSearch("searchIndustry","tableIndustry");
+  setupSearch("searchJob","tableJob");
+  setupSearch("searchSkill","tableSkill");
+  setupSearch("searchMapping","tableMapping");
+
+  
+  const modalBtns = document.querySelectorAll(".btn-add");
+  const modals = document.querySelectorAll(".modal-bg");
+  const cancelBtns = document.querySelectorAll(".btn-cancel");
+  modalBtns.forEach(btn=>btn.addEventListener("click",()=>document.getElementById(btn.dataset.modal).classList.add("show")));
+  cancelBtns.forEach(btn=>btn.addEventListener("click",()=>btn.closest(".modal-bg").classList.remove("show")));
+  window.addEventListener("click", e=>modals.forEach(m=>{if(e.target===m)m.classList.remove("show");}));
+
+  
+  function addRow(tableId, values){
+    const table=document.getElementById(tableId).getElementsByTagName('tbody')[0];
+    const row=table.insertRow();
+    row.insertCell(0).textContent = table.rows.length;
+    for(let i=0;i<values.length;i++) row.insertCell(i+1).textContent = values[i];
+    const actionCell=row.insertCell(values.length+1);
+    actionCell.classList.add("action-icons");
+    actionCell.innerHTML='<i class="bi bi-pencil-square edit-btn"></i> <i class="bi bi-trash-fill delete-btn"></i>';
+    attachRowEvents(row);
+  }
+
+  
+  function attachRowEvents(row){
+    row.querySelector(".edit-btn").addEventListener("click",()=>openEditModal(row));
+    row.querySelector(".delete-btn").addEventListener("click",()=>openDeleteModal(row));
+  }
+
+  
+  document.getElementById("saveBarangay").addEventListener("click",()=>{
+    const val=document.getElementById("newBarangay").value.trim();
+    if(val){ addRow("tableBarangay",[val]); document.getElementById("barangayModal").classList.remove("show"); document.getElementById("newBarangay").value="";}
+  });
+  document.getElementById("saveIndustry").addEventListener("click",()=>{
+    const name=document.getElementById("newIndustry").value.trim();
+    const desc=document.getElementById("newIndustryDesc").value.trim();
+    if(name){ addRow("tableIndustry",[name,desc]); document.getElementById("industryModal").classList.remove("show"); document.getElementById("newIndustry").value=""; document.getElementById("newIndustryDesc").value="";}
+  });
+  document.getElementById("saveJob").addEventListener("click",()=>{
+    const title=document.getElementById("newJobTitle").value.trim();
+    const ind=document.getElementById("newJobIndustry").value.trim();
+    if(title){ addRow("tableJob",[title,ind]); document.getElementById("jobModal").classList.remove("show"); document.getElementById("newJobTitle").value=""; document.getElementById("newJobIndustry").value="";}
+  });
+  document.getElementById("saveSkill").addEventListener("click",()=>{
+    const name=document.getElementById("newSkillName").value.trim();
+    const job=document.getElementById("newSkillJob").value.trim();
+    if(name){ addRow("tableSkill",[name,job]); document.getElementById("skillModal").classList.remove("show"); document.getElementById("newSkillName").value=""; document.getElementById("newSkillJob").value="";}
+  });
+  document.getElementById("saveMapping").addEventListener("click",()=>{
+    const ind=document.getElementById("newMapIndustry").value.trim();
+    const job=document.getElementById("newMapJob").value.trim();
+    if(ind){ addRow("tableMapping",[ind,job]); document.getElementById("mappingModal").classList.remove("show"); document.getElementById("newMapIndustry").value=""; document.getElementById("newMapJob").value="";}
+  });
+
+  
+  let currentEditRow=null;
+  const editModalEl=document.getElementById("editModal");
+  const editFields=document.querySelector("#editModal .edit-fields");
+  const saveEditBtn=document.getElementById("saveEditBtn");
+
+  function openEditModal(row){
+    currentEditRow=row;
+    editFields.innerHTML="";
+    const tableId=row.closest("table").id;
+
+    if(tableId==="tableBarangay"){
+      const input=document.createElement("input");
+      input.value=row.cells[1].textContent;
+      input.dataset.index=1;
+      editFields.appendChild(input);
+    } else if(tableId==="tableIndustry"){
+      const nameInput=document.createElement("input");
+      nameInput.value=row.cells[1].textContent; nameInput.dataset.index=1;
+      const descTextarea=document.createElement("textarea");
+      descTextarea.value=row.cells[2].textContent; descTextarea.dataset.index=2;
+      editFields.appendChild(nameInput); editFields.appendChild(descTextarea);
+    } else if(tableId==="tableJob"){
+      const titleInput=document.createElement("input"); titleInput.value=row.cells[1].textContent; titleInput.dataset.index=1;
+      const indInput=document.createElement("input"); indInput.value=row.cells[2].textContent; indInput.dataset.index=2;
+      editFields.appendChild(titleInput); editFields.appendChild(indInput);
+    } else if(tableId==="tableSkill"){
+      const skillInput=document.createElement("input"); skillInput.value=row.cells[1].textContent; skillInput.dataset.index=1;
+      const jobInput=document.createElement("input"); jobInput.value=row.cells[2].textContent; jobInput.dataset.index=2;
+      editFields.appendChild(skillInput); editFields.appendChild(jobInput);
+    } else if(tableId==="tableMapping"){
+      const indInput=document.createElement("input"); indInput.value=row.cells[1].textContent; indInput.dataset.index=1;
+      const jobInput=document.createElement("input"); jobInput.value=row.cells[2].textContent; jobInput.dataset.index=2;
+      editFields.appendChild(indInput); editFields.appendChild(jobInput);
+    }
+    editModalEl.classList.add("show");
+  }
+
+  saveEditBtn.addEventListener("click",()=>{
+    const inputs=editFields.querySelectorAll("input,textarea");
+    inputs.forEach(inp=>{
+      const idx=parseInt(inp.dataset.index);
+      currentEditRow.cells[idx].textContent=inp.value;
+    });
+    editModalEl.classList.remove("show");
+  });
+
+  
+  let currentDeleteRow=null;
+  const deleteModalEl=document.getElementById("deleteModal");
+  const deleteMsg=document.getElementById("deleteMessage");
+  const confirmDeleteBtn=document.getElementById("confirmDeleteBtn");
+
+  function openDeleteModal(row){
+    currentDeleteRow=row;
+    const name=row.cells[1].textContent;
+    deleteMsg.textContent=`Are you sure you want to delete "${name}"?`;
+    deleteModalEl.classList.add("show");
+  }
+
+  confirmDeleteBtn.addEventListener("click",()=>{
+    if(currentDeleteRow) currentDeleteRow.remove();
+    deleteModalEl.classList.remove("show");
+  });
+
+  
+  document.querySelectorAll("#tableBarangay tbody tr, #tableIndustry tbody tr, #tableJob tbody tr, #tableSkill tbody tr, #tableMapping tbody tr").forEach(r=>attachRowEvents(r));
+
+</script>
+</body>
+</html>

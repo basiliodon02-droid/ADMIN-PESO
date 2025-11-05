@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Users | SKILLocal Admin</title>
+  <link rel="stylesheet" href="users.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+</head>
+<body class="dashboard-body">
+
+  
+  <aside class="sidebar">
+    <h2 class="logo">SKILLocal</h2>
+    <nav>
+      <a href="dashboard.html">📊 Dashboard</a>
+      <a href="users.html" class="active">👥 Users</a>
+      <a href="establishments.html">🏢 Establishments</a>
+      <a href="vacancies.html">💼 Job Vacancies</a>
+      <a href="applications.html">📄 Applications</a>
+      <a href="matching.html">🔍 Matching</a>
+      <a href="masterdata.html">⚙️ Master Data</a>
+      <a href="profile.html">👤 Profile</a>
+      <a href="login.html" class="logout">Logout</a>
+    </nav>
+  </aside>
+
+  
+  <main class="main-content">
+    <header class="header">
+      <div>
+        <h1>👥 Users Management</h1>
+        <p>View, verify, and manage skilled workers and employers.</p>
+      </div>
+      <div class="timestamp" id="timestamp"></div>
+    </header>
+
+    
+    <div class="top-controls">
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search user..." />
+      </div>
+      <button class="btn-add" id="openAddUserBtn">
+        <i class="bi bi-plus-circle"></i> Add User
+      </button>
+    </div>
+
+    
+    <section class="users-section">
+      <div class="card">
+        <h3>User List</h3>
+        <table id="usersTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Full Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Registered Date</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  
+  <div id="userModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" id="closeUserModal">&times;</span>
+      <h2 id="modalTitle">Add New User</h2>
+      <form id="userForm">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="fullName" required />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="email" required />
+        </div>
+        <div class="form-group">
+          <label>Role</label>
+          <select id="role" required>
+            <option value="Worker">Worker</option>
+            <option value="Employer">Employer</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="status" required>
+            <option value="Active">Active</option>
+            <option value="Pending">Pending</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-save" id="saveUserBtn">Save</button>
+      </form>
+    </div>
+  </div>
+
+  
+  <div id="viewModal" class="modal">
+    <div class="modal-content view-content">
+      <span class="close-btn" id="closeViewModal">&times;</span>
+      <h2>👤 User Information</h2>
+      <div class="view-details">
+        <p><strong>Full Name:</strong> <span id="viewFullName"></span></p>
+        <p><strong>Email:</strong> <span id="viewEmail"></span></p>
+        <p><strong>Role:</strong> <span id="viewRole"></span></p>
+        <p><strong>Status:</strong> <span id="viewStatus"></span></p>
+        <p><strong>Registered Date:</strong> <span id="viewDate"></span></p>
+      </div>
+    </div>
+  </div>
+
+  
+  <div id="deleteModal" class="modal">
+    <div class="modal-content" style="text-align:center; max-width:380px;">
+      <h3>Confirm Delete</h3>
+      <p>Are you sure you want to delete this user?</p>
+      <div style="display:flex; justify-content:center; gap:15px; margin-top:20px;">
+        <button id="confirmDelete" class="btn-save" style="background:#eb4335;">Delete</button>
+        <button id="cancelDelete" class="btn-save" style="background:#ccc; color:#333;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const usersTableBody = document.getElementById("usersTableBody");
+    const userModal = document.getElementById("userModal");
+    const viewModal = document.getElementById("viewModal");
+    const deleteModal = document.getElementById("deleteModal");
+    const openAddUserBtn = document.getElementById("openAddUserBtn");
+    const closeUserModal = document.getElementById("closeUserModal");
+    const closeViewModal = document.getElementById("closeViewModal");
+    const confirmDeleteBtn = document.getElementById("confirmDelete");
+    const cancelDeleteBtn = document.getElementById("cancelDelete");
+    const modalTitle = document.getElementById("modalTitle");
+    const searchInput = document.getElementById("searchInput");
+
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+    let editingIndex = null;
+    let deletingIndex = null;
+
+    function renderTable(filter = "") {
+      usersTableBody.innerHTML = "";
+      users
+        .filter(
+          (u) =>
+            u.fullName.toLowerCase().includes(filter.toLowerCase()) ||
+            u.email.toLowerCase().includes(filter.toLowerCase())
+        )
+        .forEach((user, index) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${user.fullName}</td>
+            <td>${user.email}</td>
+            <td>${user.role}</td>
+            <td><span class="badge ${user.status.toLowerCase()}">${user.status}</span></td>
+            <td>${user.registeredDate || "—"}</td>
+            <td class="action-icons">
+              <i class="bi bi-eye icon-view" onclick="viewUser(${index})"></i>
+              <i class="bi bi-pencil-square icon-edit" onclick="openEditUser(${index})"></i>
+              <i class="bi bi-trash icon-delete" onclick="openDeleteModal(${index})"></i>
+            </td>
+          `;
+          usersTableBody.appendChild(tr);
+        });
+    }
+
+    openAddUserBtn.onclick = () => openModal(false);
+    closeUserModal.onclick = () => (userModal.style.display = "none");
+    closeViewModal.onclick = () => (viewModal.style.display = "none");
+
+    function openModal(isEdit, index = null) {
+      userModal.style.display = "flex";
+      modalTitle.textContent = isEdit ? "Edit User" : "Add New User";
+      if (isEdit) {
+        const u = users[index];
+        document.getElementById("fullName").value = u.fullName;
+        document.getElementById("email").value = u.email;
+        document.getElementById("role").value = u.role;
+        document.getElementById("status").value = u.status;
+        editingIndex = index;
+      } else {
+        document.querySelectorAll("#userForm input, #userForm select").forEach((el) => (el.value = ""));
+        editingIndex = null;
+      }
+    }
+
+    document.getElementById("userForm").onsubmit = (e) => {
+      e.preventDefault();
+      const newUser = {
+        fullName: document.getElementById("fullName").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        role: document.getElementById("role").value,
+        status: document.getElementById("status").value,
+        registeredDate:
+          editingIndex !== null
+            ? users[editingIndex].registeredDate
+            : new Date().toLocaleString(),
+      };
+
+      if (editingIndex !== null) users[editingIndex] = newUser;
+      else users.push(newUser);
+
+      localStorage.setItem("users", JSON.stringify(users));
+      renderTable();
+      userModal.style.display = "none";
+    };
+
+    function viewUser(index) {
+      const u = users[index];
+      document.getElementById("viewFullName").textContent = u.fullName;
+      document.getElementById("viewEmail").textContent = u.email;
+      document.getElementById("viewRole").textContent = u.role;
+      document.getElementById("viewStatus").textContent = u.status;
+      document.getElementById("viewDate").textContent = u.registeredDate;
+      viewModal.style.display = "flex";
+    }
+
+    function openEditUser(index) {
+      openModal(true, index);
+    }
+
+    function openDeleteModal(index) {
+      deletingIndex = index;
+      deleteModal.style.display = "flex";
+    }
+    confirmDeleteBtn.onclick = () => {
+      users.splice(deletingIndex, 1);
+      localStorage.setItem("users", JSON.stringify(users));
+      renderTable();
+      deleteModal.style.display = "none";
+    };
+    cancelDeleteBtn.onclick = () => (deleteModal.style.display = "none");
+
+    searchInput.addEventListener("input", (e) => renderTable(e.target.value));
+
+    function updateTimestamp() {
+      document.getElementById("timestamp").textContent = new Date().toLocaleString();
+    }
+    setInterval(updateTimestamp, 1000);
+
+    window.onclick = (e) => {
+      if (e.target === userModal) userModal.style.display = "none";
+      if (e.target === viewModal) viewModal.style.display = "none";
+      if (e.target === deleteModal) deleteModal.style.display = "none";
+    };
+
+    renderTable();
+    updateTimestamp();
+  </script>
+</body>
+</html>

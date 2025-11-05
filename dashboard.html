@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Skillocal Admin - Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="dashboard-body">
+  
+  <aside class="sidebar">
+    <h2 class="logo">SKILlocal</h2>
+    <nav>
+      <a href="dashboard.html" class="active">📊 Dashboard</a>
+      <a href="users.html">👥 Users</a>
+      <a href="establishments.html">🏢 Establishments</a>
+      <a href="vacancies.html">💼 Job Vacancies</a>
+      <a href="applications.html">📄 Applications</a>
+      <a href="matching.html">🔍 Job Matching</a>
+      <a href="masterdata.html">⚙️ Master Data</a>
+      <a href="profile.html">👤 Profile</a>
+      <a href="login.html" class="logout">Logout</a>
+    </nav>
+  </aside>
+
+  
+  <main class="main-content">
+    
+    <header class="header">
+      <div>
+        <h1>📊 SKILlocal Admin Dashboard</h1>
+        <p>Monitoring Skilled Workers and Job Vacancies in General Santos City</p>
+      </div>
+      <div class="timestamp" id="timestamp"></div>
+    </header>
+
+    
+    <section class="cards">
+      <div class="card"><h3>🧑‍🔧 Skilled Workers</h3><p>0</p></div>
+      <div class="card"><h3>🏢 Establishments</h3><p>0</p></div>
+      <div class="card"><h3>💼 Active Vacancies</h3><p>0</p></div>
+      <div class="card"><h3>📄 Applications</h3><p>0</p></div>
+    </section>
+
+    
+    <section class="summary-grid">
+      <div class="summary-card"><h3>🔍 Successful Matches</h3><p>0</p></div>
+      <div class="summary-card"><h3>⚙️ System Status</h3><p>✅ Online</p></div>
+    </section>
+
+    
+    <section class="charts-grid">
+      <div class="chart-container">
+        <h3>Worker Category Distribution</h3>
+        <canvas id="workerChart"></canvas>
+      </div>
+      <div class="chart-container">
+        <h3>Job Vacancy Trends</h3>
+        <canvas id="jobChart"></canvas>
+      </div>
+      <div class="chart-container">
+        <h3>Application Status</h3>
+        <canvas id="appStatusChart"></canvas>
+      </div>
+      <div class="chart-container">
+        <h3>Matching Success Rate</h3>
+        <canvas id="matchChart"></canvas>
+      </div>
+    </section>
+
+    
+    <section class="recent-activity">
+      <h3>Recent Activities</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Activity</th>
+            <th>User/Company</th>
+            <th>Status</th>
+            <th>Type</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>2025-10-06</td>
+            <td>New Job Posted: Electrician</td>
+            <td>ABC Builders</td>
+            <td><span class="status approved">Approved</span></td>
+            <td><span class="tag job">Job</span></td>
+          </tr>
+          <tr>
+            <td>2025-10-06</td>
+            <td>Worker Registration: Plumber</td>
+            <td>Juan Dela Cruz</td>
+            <td><span class="status pending">Pending</span></td>
+            <td><span class="tag user">User</span></td>
+          </tr>
+          <tr>
+            <td>2025-10-07</td>
+            <td>Establishment Verified</td>
+            <td>Gensan Carpentry Works</td>
+            <td><span class="status resolved">Completed</span></td>
+            <td><span class="tag est">Establishment</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    
+    <section class="verification-requests">
+      <h3>Pending Verification Requests</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Date Submitted</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Maria Lopez</td>
+            <td>Worker</td>
+            <td>Oct 7, 2025</td>
+            <td><span class="status pending">Pending</span></td>
+            <td>
+              <button class="approve-btn">Approve</button>
+              <button class="reject-btn">Reject</button>
+            </td>
+          </tr>
+          <tr>
+            <td>JBC Builders</td>
+            <td>Establishment</td>
+            <td>Oct 6, 2025</td>
+            <td><span class="status pending">Pending</span></td>
+            <td>
+              <button class="approve-btn">Approve</button>
+              <button class="reject-btn">Reject</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    
+    <footer class="system-summary">
+      <p>🕒 Last system update: Nov 5, 2025 — 1:25 PM</p>
+      <p>📊 Total Data Records: 0</p>
+      <p>🔔 0 pending verification requests</p>
+    </footer>
+  </main>
+
+  <script>
+  
+  function updateTimestamp() {
+    const now = new Date();
+    document.getElementById("timestamp").textContent =
+      now.toLocaleString("en-PH", { dateStyle: "full", timeStyle: "medium" });
+  }
+  setInterval(updateTimestamp, 1000);
+  updateTimestamp();
+
+  
+  const commonOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "bottom",
+        labels: {
+          boxWidth: 15,
+          padding: 15,
+          font: { size: 12 },
+        },
+      },
+    },
+    layout: {
+      padding: 10
+    }
+  };
+
+  
+  const workerChart = new Chart(document.getElementById("workerChart"), {
+    type: "pie",
+    data: {
+      labels: ["Construction", "Electrical", "Plumbing", "Welding", "Technicians", "Others"],
+      datasets: [{
+        data: [400, 250, 180, 120, 200, 95],
+        backgroundColor: ["#4A47FF", "#FFD972", "#28a745", "#EB4335", "#6f42c1", "#17a2b8"]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false } 
+      }
+    }
+  });
+
+  
+  const workerLegend = document.createElement("div");
+  workerLegend.classList.add("worker-legend");
+  workerLegend.innerHTML = `
+    <div class="legend-row">
+      <div><span style="background:#4A47FF"></span> Construction</div>
+      <div><span style="background:#FFD972"></span> Electrical</div>
+      <div><span style="background:#28a745"></span> Plumbing</div>
+    </div>
+    <div class="legend-row">
+      <div><span style="background:#EB4335"></span> Welding</div>
+      <div><span style="background:#6f42c1"></span> Technicians</div>
+      <div><span style="background:#17a2b8"></span> Others</div>
+    </div>
+  `;
+  document.querySelector("#workerChart").parentNode.appendChild(workerLegend);
+
+  
+  new Chart(document.getElementById("jobChart"), {
+    type: "bar",
+    data: {
+      labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep"],
+      datasets: [{
+        label: "Jobs Posted",
+        data: [80, 100, 150, 180, 220, 320],
+        backgroundColor: "#4A47FF"
+      }]
+    },
+    options: commonOptions
+  });
+
+  
+const appStatusChart = new Chart(document.getElementById("appStatusChart"), {
+  type: "doughnut",
+  data: {
+    labels: ["Pending", "Approved", "Rejected"],
+    datasets: [{
+      data: [1, 10, 3],
+      backgroundColor: ["#FFD972", "#4A47FF", "#EB4335"]
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } }
+  }
+});
+
+
+const appLegend = document.createElement("div");
+appLegend.classList.add("app-legend");
+appLegend.innerHTML = `
+  <div class="legend-row">
+    <div><span style="background:#FFD972"></span> Pending</div>
+    <div><span style="background:#4A47FF"></span> Approved</div>
+    <div><span style="background:#EB4335"></span> Rejected</div>
+  </div>
+`;
+document.querySelector("#appStatusChart").parentNode.appendChild(appLegend);
+
+
+
+  new Chart(document.getElementById("matchChart"), {
+    type: "line",
+    data: {
+      labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep"],
+      datasets: [{
+        label: "Successful Matches",
+        data: [120, 180, 240, 300, 420, 520],
+        borderColor: "#4A47FF",
+        borderWidth: 2,
+        fill: false,
+        tension: 0.3,
+        pointRadius: 4,
+        pointBackgroundColor: "#4A47FF"
+      }]
+    },
+    options: commonOptions
+  });
+</script>
+
+
+</body>
+</html>
