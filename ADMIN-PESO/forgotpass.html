@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Forgot Password</title>
+  <link rel="stylesheet" href="forgotpass.css" />
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+
+<body class="login-body">
+  <div class="login-container">
+    <img src="logo.png" alt="Skillocal Logo" />
+    <h2>Forgot Password</h2>
+
+    <form id="forgotPasswordForm">
+      <input type="email" id="email" placeholder="Enter your email" required />
+      <button type="submit">Send Reset Link</button>
+      <a href="login.html" class="forgot-password">Back to Login</a>
+    </form>
+  </div>
+
+  <!-- Modal -->
+  <div id="customModal" class="modal">
+    <div class="modal-content">
+      <p id="modalMessage"></p>
+      <button id="modalClose">OK</button>
+    </div>
+  </div>
+
+  <script>
+    // ===== Supabase Setup =====
+    const SUPABASE_URL = "https://zvqsqntqoyksranhodfh.supabase.co";
+    const SUPABASE_ANON_KEY =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2cXNxbnRxb3lrc3JhbmhvZGZoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxNjQ3NzMsImV4cCI6MjA3Mzc0MDc3M30.8A7kdHZmMFFNZMBLEhaAegkQOu4fVJ2-RwlMVN7dYSU";
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ===== Modal Functions =====
+    const modal = document.getElementById("customModal");
+    const modalMessage = document.getElementById("modalMessage");
+    const modalClose = document.getElementById("modalClose");
+
+    function showModal(message) {
+      modalMessage.textContent = message;
+      modal.style.display = "flex";
+    }
+    modalClose.addEventListener("click", () => (modal.style.display = "none"));
+
+    // ===== Forgot Password Logic =====
+    document.getElementById("forgotPasswordForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      if (!email) return showModal("⚠️ Please enter your email!");
+
+      try {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: "http://localhost:3000/resetpassword.html", // ✅ exact redirect
+        });
+
+        if (error) {
+          console.error("Error:", error);
+          showModal("❌ " + error.message);
+        } else {
+          showModal("✅ Reset link sent! Please check your inbox or spam folder.");
+          document.getElementById("forgotPasswordForm").reset();
+        }
+      } catch (err) {
+        console.error(err);
+        showModal("⚠️ Something went wrong. Please try again.");
+      }
+    });
+  </script>
+</body>
+</html>
