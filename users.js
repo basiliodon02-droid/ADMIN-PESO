@@ -194,10 +194,32 @@ document.addEventListener('DOMContentLoaded', function () {
       if (editUserResult.success === false) {
         alert(editUserResult.message); //browser alert message
       } else {
-        alert(editUserResult.message); //browser alert message
-        renumberUsers();
-        hideLayer(userModal);
-        editingRow = null;
+        const checkForBioData = await getUserBioDataById(editUserId);
+        if (checkForBioData.success && checkForBioData.data.length > 0) {
+          //no need to do anything
+          alert(editUserResult.message); //browser alert message
+          renumberUsers();
+          hideLayer(userModal);
+          editingRow = null;
+        } else if (checkForBioData.success && checkForBioData.data.length === 0) {
+          //add to JobApplicationDetails table
+          const fullName = firstname + " " + (mi ? mi + " " : "") + lastname;
+          const { error } = await supabase.from("JobApplicationDetails").insert([
+            {
+              user_id: editUserId,
+              fullName: fullName,
+            }]);
+
+          if (error) {
+            alert(error.message); //browser alert message
+          } else {
+            alert(editUserResult.message); //browser alert message
+            renumberUsers();
+            hideLayer(userModal);
+            editingRow = null;
+          }
+        }
+
       }
 
     }
@@ -442,5 +464,30 @@ async function deleteUser(userId) {
       };
     }
 
+  }
+}
+
+
+
+//GET LIST OF USERS FUNCTION
+async function getUserBioDataById(id) {
+  const { data, error } = await supabase
+    .from("JobApplicationDetails")
+    .select("*")
+    .eq("user_id", id)
+    ;
+
+  if (error) {
+    return {
+      message: error.message,
+      success: false,
+      data: {},
+    };
+  } else {
+    return {
+      message: "got it",
+      success: true,
+      data: data,
+    };
   }
 }
