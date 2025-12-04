@@ -45,28 +45,31 @@ document.addEventListener("DOMContentLoaded", function () {
     // });
     const result = await getSkilledJobList();
     if (result.success === false) {
+      
       alert(result.message); //browser alert message
     } else {
       //added td for industry_id but only hidden
       tableBody.innerHTML = "";
-      for (i = 0; i < result.data.length; i++) {
+      var i=0;
+     result.data.forEach(item => {
         tableBody.insertAdjacentHTML(
           "beforeend",
           `
         <tr>
           <td>${i + 1}</td>
-          <td>${result.data[i].job_name}</td>
-          <td>${result.data[i].industry}</td>
+          <td>${item.SkilledJob.job_name}</td>
+          <td>${item.Industry.industry_name}</td>
           <td class="action-icons">
             <i class="bi bi-eye-fill icon-view" title="View"></i>
             <i class="bi bi-pencil-square icon-edit" title="Edit"></i>
             <i class="bi bi-trash3-fill icon-delete" title="Delete"></i>
           </td>
-          <td style='display:none;'>${result.data[i].job_id}</td>
+          <td style='display:none;'>${item.SkilledJob.job_id}</td>
         </tr>
         `
         );
-      }
+        i++;
+      });
     }
   }
 
@@ -114,7 +117,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const industryId= await getSelectedindustryId(industry);
       
-      const result = await addSkilledJob(title, industry);
+      const result = await addSkilledJob(title);
       if (result.success === false) {
         alert(result.message); //browser alert message
       } else {
@@ -125,7 +128,12 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       const jobId= await getNewJobId();
-      const assignment=await setJobIndustryAssignment(industryId,jobId);
+      const assignment=await setJobIndustryAssignment(industryId.data[0].industry_id,jobId.data[0].job_id);
+      if (assignment.success === false) {
+        alert(result.message); //browser alert message
+      } else {
+        alert(result.message); //browser alert message
+      }
     } else {
       const skillsId = skilledJobIdInput.value.trim();
 
@@ -305,8 +313,8 @@ async function getIndustryList() {
 //GET LIST OF SKILLS FUNCTION
 async function getSkilledJobList() {
   const { data, error } = await supabase
-    .from("SkilledJob")
-    .select("*")
+    .from("IndustryJobs")
+    .select("industry_id,job_id,Industry(*),SkilledJob(*)")
     .order("job_id", { ascending: true });
 
   if (error) {
@@ -376,12 +384,10 @@ async function setJobIndustryAssignment(industryid,jobid) {
   /*const { data, error } = await supabase
     .from("IndustryJobs")
     .insert({industry_id: industryid,job_id: jobid})*/
-console.log (industryid);
-console.log (jobid);
-    const {data, error } = await supabase
-    .from("IndustryJobs")
-    .insert([
-        {industry_id: industryid,job_id: jobid},
+    const {data, error } = await supabase.from("IndustryJobs").insert([
+        {
+          industry_id: industryid,job_id: jobid,
+        },
   ]);
     
 
@@ -389,19 +395,17 @@ console.log (jobid);
     return {
       message: error.message,
       success: false,
-      data: {},
     };
   } else {
     return {
       message: "got it",
       success: true,
-      data: data,
     };
   }
 }
 
 // ADD SKILL FUNCTION
-async function addSkilledJob(name, industry) {
+async function addSkilledJob(name) {
 
   const { data, error } = await supabase.from("SkilledJob").insert([
     {
