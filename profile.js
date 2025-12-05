@@ -44,7 +44,7 @@ if (localStorage.getItem('isLoggedIn')=='FALSE'){
 
       if (newPassword !== confirmPassword) {
         alert("Passwords do not match!");
-        return;
+        return; 
       }
 
       alert("Profile and password updated successfully!");
