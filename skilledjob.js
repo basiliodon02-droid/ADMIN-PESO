@@ -1,3 +1,4 @@
+//recommit
 document.addEventListener("DOMContentLoaded", function () {
   if (localStorage.getItem("isLoggedIn") == "FALSE") {
     window.location.href = "./index.html";
