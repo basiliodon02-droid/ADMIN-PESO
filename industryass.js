@@ -97,21 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
   async function renderIndustryOptions(
     // selectEl, withEmpty = true
   ) {
-    // if (!selectEl) return;
-    // selectEl.innerHTML = '';
-    // if (withEmpty) {
-    //   const opt = document.createElement('option');
-    //   opt.value = '';
-    //   opt.textContent = '— None —';
-    //   selectEl.appendChild(opt);
-    // }
-    // state.industries.forEach(ind => {
-    //   const opt = document.createElement('option');
-    //   opt.value = ind.id;
-    //   opt.textContent = `${ind.name}`;
-    //   selectEl.appendChild(opt);
-    // });
-    //fill up industry drop down with list from Industry table (db)
 
     const result = await getIndustryList();
     if (result.success === false) {
@@ -123,13 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       jobIndustry.innerHTML = '';
       assignIndustry.innerHTML = '';
-      // Create blank option
-      // const option = document.createElement("option");
-      // // Add additional option for job industry select
-      // option.text = "No Industry";
-      // option.value = "";
-      // // Append the option to the select element
-      // jobIndustry.appendChild(option);
 
       for (i = 0; i < result.data.length; i++) {
         // Get the select element
@@ -437,7 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
       modalIndustry?.show();
     }
     if (action === 'del') {
-      if (!confirm('Delete this industry? Related jobs/assignments may still depend on this industry.')) return;
+      if (!confirm('Delete this Industry? Related jobs/assignments may still depend on this Industry.')) return;
       // state.industries = state.industries.filter(i => i.id !== id);
       // saveStore(state);
       // renderIndustryOptions(byId('jobIndustry'));
@@ -507,7 +485,7 @@ document.addEventListener('DOMContentLoaded', () => {
       //check first if industry is already being used in industry jobs assignment
       const checkIndustryJobResult = await checkIndustryJob(industryId.data[0].industry_id);
       if (checkIndustryJobResult.data.length > 0) {
-        alert("Industry is already assigned to another job. Please choose a different industry.");
+        alert("Industry is already assigned to another Job Role. Please choose a different Industry.");
         return
       } else {
         //proceed
@@ -558,9 +536,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     }
     if (action === 'del') {
-      if (!confirm('Delete this job role? Related assignments may still depend on this job role.')) return;
+      if (!confirm('Delete this job role? Related Industry Jobs Assignment will also be removed.')) return;
 
       if (job_id !== null) {
+        //check first if some Skills are using this Skilled Job/Job Role
+        const checkSkillAssignmentResult = await checkIfSkilledJobIsUsed(job_id);
+
+        if (checkSkillAssignmentResult.data.length > 0) {
+          alert("Some Skills are using this Job Role. Please modify the said Skills first.");
+          return
+        }
+
         //delete industry job assignment first before deleting skilled job
         const result = await deleteJobIndustryAssignment(job_id);
         if (result.success === false) {
@@ -966,6 +952,28 @@ async function getNewJobId() {
   }
 }
 
+
+//check if skilled job is used by a skill
+async function checkIfSkilledJobIsUsed(job_id) {
+  const { data, error } = await supabase
+    .from("SkillAssignment")
+    .select('*')
+    .eq("job_id", job_id);
+  if (error) {
+    return {
+      message: error.message,
+      success: false,
+      data: {},
+    };
+  } else {
+    return {
+      message: "got it",
+      success: true,
+      data: data,
+    };
+  }
+}
+
 //set Job Industry Assignment
 async function setJobIndustryAssignment(industryid, jobid) {
   /*const { data, error } = await supabase
@@ -1114,104 +1122,6 @@ async function deleteSkilledJob(job_id) {
 
 
 
-// //GET LIST OF JOB ROLE FUNCTION
-// async function getJobRoleList() {
-//   const { data, error } = await supabase
-//     .from("JobRoles")
-//     .select("*")
-//     .order("job_role_id", { ascending: true });
-
-//   if (error) {
-//     return {
-//       message: error.message,
-//       success: false,
-//       data: {},
-//     };
-//   } else {
-//     return {
-//       message: "got it",
-//       success: true,
-//       data: data,
-//     };
-//   }
-// }
-
-// //ADD JOB ROLE FUNCTION
-// async function addJobRole(name, description, industry_id, industry_name) {
-//   const { data, error } = await supabase.from("JobRoles").insert([
-//     {
-//       job_title: name,
-//       description: description,
-//       industry_id: industry_id,
-//       industry: industry_name,
-//       created_at: new Date().toLocaleString(),
-//     },
-//   ]);
-
-//   if (error) {
-//     return {
-//       message: error.message,
-//       success: false,
-//     };
-//   } else {
-//     return {
-//       message: "Job Role Added!",
-//       success: true,
-//     };
-//   }
-// }
-
-// //EDIT JOB ROLE FUNCTION
-// async function editJobRole(job_role_id, name, description, industry_id, industry_name) {
-//   const { error } = await supabase
-//     .from("JobRoles")
-//     .update({
-//       job_title: name,
-//       description: description,
-//       industry_id: industry_id,
-//       industry: industry_name,
-//     })
-//     .eq("job_role_id", job_role_id) // your condition
-//     .select();
-
-//   if (error) {
-//     return {
-//       message: error.message,
-//       success: false,
-//     };
-//   } else {
-//     return {
-//       message: `Job Role Updated!`,
-//       success: true,
-//     };
-//   }
-// }
-
-// //DELETE JOB ROLE FUNCTION
-// async function deleteJobRole(job_role_id) {
-//   const { data, error } = await supabase
-//     .from("JobRoles")
-//     .delete()
-//     .eq("job_role_id", job_role_id)
-//     .select()
-//     .throwOnError();
-//   if (error || data.length === 0) {
-//     return {
-//       message: error?.message || "Foreign key prevents deletion.",
-//       success: false,
-//     };
-//   } else {
-//     return {
-//       message: `Job Role Deleted!`,
-//       success: true,
-//     };
-//   }
-// }
-
-
-
-
-
 //GET LIST OF JOB ASSIGNMENT FUNCTION
 async function getIndustryJobAssignmentList() {
   const { data, error } = await supabase
@@ -1233,84 +1143,6 @@ async function getIndustryJobAssignmentList() {
     };
   }
 }
-
-// //ADD JOB ASSIGNMENT FUNCTION
-// async function addIndustryJobAssignment(industry_id, industry_name, job_role_id, job_title, job_industry_id, job_industry_name, isActive) {
-//   const { data, error } = await supabase.from("IndustryJobAssignment").insert([
-//     {
-//       industry_id: industry_id,
-//       industry_name: industry_name,
-//       job_role_id: job_role_id,
-//       job_title: job_title,
-//       job_industry_id: job_industry_id,
-//       job_industry_name: job_industry_name,
-//       isActive: isActive,
-//       created_at: new Date().toLocaleString(),
-//     },
-//   ]);
-//   console.log(industry_id, industry_name, job_role_id, job_title, job_industry_id, job_industry_name, isActive)
-//   if (error) {
-//     return {
-//       message: error.message,
-//       success: false,
-//     };
-//   } else {
-//     return {
-//       message: "Job Assignment Added!",
-//       success: true,
-//     };
-//   }
-// }
-
-// //EDIT JOB ASSIGNMENT FUNCTION
-// async function editIndustryJobAssignment(job_assignment_id, industry_id, industry_name, job_role_id, job_title, job_industry_id, job_industry_name, isActive) {
-//   const { error } = await supabase
-//     .from("IndustryJobAssignment")
-//     .update({
-//       industry_id: industry_id,
-//       industry_name: industry_name,
-//       job_role_id: job_role_id,
-//       job_title: job_title,
-//       job_industry_id: job_industry_id,
-//       job_industry_name: job_industry_name,
-//       isActive: isActive,
-//     })
-//     .eq("job_assignment_id", job_assignment_id) // your condition
-//     .select();
-
-//   if (error) {
-//     return {
-//       message: error.message,
-//       success: false,
-//     };
-//   } else {
-//     return {
-//       message: `Job Assignment Updated!`,
-//       success: true,
-//     };
-//   }
-// }
-
-// //DELETE JOB ASSIGNMENT FUNCTION
-// async function deleteIndustryJobAssignment(job_assignment_id) {
-//   const { data, error } = await supabase
-//     .from("IndustryJobAssignment")
-//     .delete()
-//     .eq("job_assignment_id", job_assignment_id)
-//     .select()
-//     .throwOnError();
-//   if (error || data.length === 0) {
-//     return {
-//       message: error?.message || "Foreign key prevents deletion.",
-//       success: false,
-//     };
-//   } else {
-//     return {
-//       message: `Job Assignment Deleted!`,
-//       success: true,
-//     };
-//   }
-// }
 
 const searchInput = document.getElementById("searchInput");
 

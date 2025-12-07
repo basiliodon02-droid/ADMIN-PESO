@@ -215,17 +215,19 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   document.getElementById("confirmDeleteBtn").onclick = async () => {
-    // if (deleteRowIndex !== null) {
-    //   tableBody.deleteRow(deleteRowIndex);
-    //   [...tableBody.rows].forEach(
-    //     (r, i) => (r.children[0].textContent = i + 1)
-    //   );
-    // }
-
-
-
     const job_id = deleteSkilledJobIdInput.value.trim();
     if (job_id !== null) {
+
+
+      //check first if some Skills are using this Skilled Job/Job Role
+      const checkSkillAssignmentResult = await checkIfSkilledJobIsUsed(job_id);
+
+      if (checkSkillAssignmentResult.data.length > 0) {
+        alert("Some Skills are using this Job Role. Please modify the said Skills first.");
+        return
+      }
+
+
       //delete industry job assignment first before deleting skilled job
       const result = await deleteJobIndustryAssignment(job_id);
       if (result.success === false) {
@@ -564,6 +566,28 @@ async function deleteSkilledJob(job_id) {
     return {
       message: `Skilled Job Deleted!`,
       success: true,
+    };
+  }
+}
+
+
+//check if skilled job is used by a skill
+async function checkIfSkilledJobIsUsed(job_id) {
+  const { data, error } = await supabase
+    .from("SkillAssignment")
+    .select('*')
+    .eq("job_id", job_id);
+  if (error) {
+    return {
+      message: error.message,
+      success: false,
+      data: {},
+    };
+  } else {
+    return {
+      message: "got it",
+      success: true,
+      data: data,
     };
   }
 }
