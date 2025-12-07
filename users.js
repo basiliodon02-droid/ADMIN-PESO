@@ -406,10 +406,40 @@ async function editUser(userId, first, last, middle, email, role, stat) {
       success: false,
     };
   } else {
-    return {
-      message: `${role} Updated!`,
-      success: true,
-    };
+
+    const result = await checkIfUserHasApplicationDetails(userId);
+    if (result.data.length > 0) {
+      //already has job application details row
+      return {
+        message: `User Updated!`,
+        success: true,
+      };
+    } else {
+      const fullName = first + " " + (middle ? middle + " " : "") + last;
+
+      //add also to JobAplication table
+      const { error } = await supabase.from("JobApplicationDetails").insert([
+        {
+          user_id: userId,
+          fullName: fullName,
+
+        },
+      ]);
+
+      if (error) {
+        return {
+          message: error.message,
+          success: false,
+        };
+      } else {
+
+        return {
+          message: `User Updated!`,
+          success: true,
+        };
+      }
+    }
+
   }
 }
 
@@ -442,5 +472,29 @@ async function deleteUser(userId) {
       };
     }
 
+  }
+}
+
+
+
+
+//check if user has JobApplicationDetails
+async function checkIfUserHasApplicationDetails(user_id) {
+  const { data, error } = await supabase
+    .from("JobApplicationDetails")
+    .select('*')
+    .eq("user_id", user_id);
+  if (error) {
+    return {
+      message: error.message,
+      success: false,
+      data: {},
+    };
+  } else {
+    return {
+      message: "got it",
+      success: true,
+      data: data,
+    };
   }
 }

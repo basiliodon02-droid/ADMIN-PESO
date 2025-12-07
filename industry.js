@@ -335,7 +335,7 @@ async function deleteIndustry(industryId) {
     .delete()
     .eq("industry_id", industryId)
     .select()
-    .throwOnError();
+  // .throwOnError();
   if (error || data.length === 0) {
     return {
       message: error?.message || "Foreign key prevents deletion.",
