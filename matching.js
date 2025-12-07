@@ -283,26 +283,6 @@ async function getEstablishmentById(establishment_id) {
   }
 }
 
-async function getEstablishmentById(establishment_id) {
-  const { data, error } = await supabase
-    .from("Establishment")
-    .select("*")
-    .eq("establishment_id", establishment_id);
-
-  if (error) {
-    return {
-      message: error.message,
-      success: false,
-      data: {},
-    };
-  } else {
-    return {
-      message: "got it",
-      success: true,
-      data: data,
-    };
-  }
-}
 
 // window.onload = runJobMatching();
 
