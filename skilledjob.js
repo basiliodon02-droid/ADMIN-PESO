@@ -46,13 +46,13 @@ document.addEventListener("DOMContentLoaded", function () {
     // });
     const result = await getSkilledJobList();
     if (result.success === false) {
-      
+
       alert(result.message); //browser alert message
     } else {
       //added td for industry_id but only hidden
       tableBody.innerHTML = "";
-      var i=0;
-     result.data.forEach(item => {
+      var i = 0;
+      result.data.forEach(item => {
         tableBody.insertAdjacentHTML(
           "beforeend",
           `
@@ -102,55 +102,59 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (editingRowIndex === null) {
-      //   const newIndex = tableBody.rows.length + 1;
-      //   const tr = document.createElement("tr");
-      //   tr.innerHTML = `
-      //   <td>${newIndex}</td>
-      //   <td>${title}</td>
-      //   <td>${industry || "-"}</td>
-      //   <td class="action-icons">
-      //     <i class="bi bi-eye-fill icon-view" title="View"></i>
-      //     <i class="bi bi-pencil-square icon-edit" title="Edit"></i>
-      //     <i class="bi bi-trash3-fill icon-delete" title="Delete"></i>
-      //   </td>
-      // `;
-      //   tableBody.appendChild(tr);
+      //add skilled job
+      const industryId = await getSelectedindustryId(industry);
 
-  const industryId= await getSelectedindustryId(industry);
-      
-      const result = await addSkilledJob(title);
-      if (result.success === false) {
-        alert(result.message); //browser alert message
+      //check first if industry is already being used in industry jobs assignment
+      const checkIndustryJobResult = await checkIndustryJob(industryId.data[0].industry_id);
+      if (checkIndustryJobResult.data.length > 0) {
+        alert("Industry is already assigned to another job. Please choose a different industry.");
+        return
       } else {
-        alert(result.message); //browser alert message
-        renumberSkilledJobs();
-        addEditModal.style.display = "none";
-        addEditModal.setAttribute("aria-hidden", "true");
+        //proceed
+        const result = await addSkilledJob(title);
+        if (result.success === false) {
+          alert(result.message); //browser alert message
+
+        } else {
+          alert(result.message); //browser alert message
+          const jobId = await getNewJobId();
+          const assignment = await setJobIndustryAssignment(industryId.data[0].industry_id, jobId.data[0].job_id);
+          if (assignment.success === false) {
+            alert(assignment.message); //browser alert message
+          } else {
+            renumberSkilledJobs();
+            addEditModal.style.display = "none";
+            addEditModal.setAttribute("aria-hidden", "true");
+            alert(assignment.message); //browser alert message
+          }
+        }
+
       }
 
-      const jobId= await getNewJobId();
-      const assignment=await setJobIndustryAssignment(industryId.data[0].industry_id,jobId.data[0].job_id);
-      if (assignment.success === false) {
-        alert(result.message); //browser alert message
-      } else {
-        alert(result.message); //browser alert message
-      }
+
     } else {
+      //edit skilled job
       const skillsId = skilledJobIdInput.value.trim();
-
-      const result = await editSkilledJob(skillsId, title, industry);
+      const industryId = await getSelectedindustryId(industry);
+      const result = await editSkilledJob(skillsId, title, industryId.data[0].industry_id);
       if (result.success === false) {
         alert(result.message); //browser alert message
       } else {
-        alert(result.message); //browser alert message
-        renumberSkilledJobs();
-        addEditModal.style.display = "none";
-        addEditModal.setAttribute("aria-hidden", "true");
+        const editIndustryJobResult = await editJobIndustryAssignment(industryId.data[0].industry_id, skillsId);
+
+        if (editIndustryJobResult.success === false) {
+          alert(editIndustryJobResult.message); //browser alert message
+        } else {
+          alert(result.message); //browser alert message
+          alert(editIndustryJobResult.message); //browser alert message
+          renumberSkilledJobs();
+          addEditModal.style.display = "none";
+          addEditModal.setAttribute("aria-hidden", "true");
+        }
+
       }
 
-      // const row = tableBody.rows[editingRowIndex];
-      // row.children[1].textContent = title;
-      // row.children[2].textContent = industry || "-";
     }
   };
 
@@ -218,17 +222,32 @@ document.addEventListener("DOMContentLoaded", function () {
     //   );
     // }
 
-    const skillsId = deleteSkilledJobIdInput.value.trim();
-    if (skillsId !== null) {
-      const result = await deleteSkilledJob(skillsId);
+
+
+    const job_id = deleteSkilledJobIdInput.value.trim();
+    if (job_id !== null) {
+      //delete industry job assignment first before deleting skilled job
+      const result = await deleteJobIndustryAssignment(job_id);
       if (result.success === false) {
         alert(result.message); //browser alert message
       } else {
+        console.log(result);
         alert(result.message); //browser alert message
-        renumberSkilledJobs();
-        deleteOverlay.style.display = "none";
-        deleteOverlay.setAttribute("aria-hidden", "true");
-        deleteRowIndex = null;
+        //delete skilled job
+        const skilledJobResult = await deleteSkilledJob(job_id);
+        if (skilledJobResult.success === false) {
+          alert(skilledJobResult.message); //browser alert message
+        } else {
+
+          alert(skilledJobResult.message); //browser alert message
+
+          renumberSkilledJobs();
+          deleteOverlay.style.display = "none";
+          deleteOverlay.setAttribute("aria-hidden", "true");
+          deleteRowIndex = null;
+
+        }
+
       }
     }
   };
@@ -333,6 +352,31 @@ async function getSkilledJobList() {
   }
 }
 
+
+//CHECK IF INDUSTRY JOB ASSIGNMENT EXISTS FUNCTION
+async function checkIndustryJob(industry_id) {
+  const { data, error } = await supabase
+    .from("IndustryJobs")
+    .select("industry_id")
+    .eq("industry_id", industry_id)
+    .order("job_id", { ascending: true });
+
+  if (error) {
+    return {
+      message: error.message,
+      success: false,
+      data: {},
+    };
+  } else {
+    return {
+      message: "got it",
+      success: true,
+      data: data,
+    };
+  }
+}
+
+
 //get selected industry ID 
 async function getSelectedindustryId(industry) {
   const { data, error } = await supabase
@@ -381,16 +425,16 @@ async function getNewJobId() {
 }
 
 //set Job Industry Assignment
-async function setJobIndustryAssignment(industryid,jobid) {
+async function setJobIndustryAssignment(industryid, jobid) {
   /*const { data, error } = await supabase
     .from("IndustryJobs")
     .insert({industry_id: industryid,job_id: jobid})*/
-    const {data, error } = await supabase.from("IndustryJobs").insert([
-        {
-          industry_id: industryid,job_id: jobid,
-        },
+  const { data, error } = await supabase.from("IndustryJobs").insert([
+    {
+      industry_id: industryid, job_id: jobid,
+    },
   ]);
-    
+
 
   if (error) {
     return {
@@ -399,11 +443,61 @@ async function setJobIndustryAssignment(industryid,jobid) {
     };
   } else {
     return {
-      message: "got it",
+      message: "Industry Job Assignment Added!",
       success: true,
     };
   }
 }
+
+
+async function editJobIndustryAssignment(industry_id, job_id) {
+  let job_id_int = parseInt(job_id);
+  console.log(industry_id, job_id_int);
+  const { error } = await supabase
+    .from("IndustryJobs")
+    .update({
+      industry_id: industry_id,
+    })
+    .eq("job_id", job_id_int) // your condition
+    .select();
+
+  if (error) {
+    return {
+      message: error.message,
+      success: false,
+    };
+  } else {
+    return {
+
+      message: `Industry Job Assignment Updated!`,
+      success: true,
+    };
+  }
+}
+
+
+async function deleteJobIndustryAssignment(job_id) {
+  let job_id_int = parseInt(job_id);
+  const { error } = await supabase
+    .from("IndustryJobs")
+    .delete()
+    .eq("job_id", job_id_int)
+    .select();
+
+  if (error) {
+    return {
+      message: error.message,
+      success: false,
+    };
+  } else {
+    return {
+
+      message: `Industry Job Deleted!`,
+      success: true,
+    };
+  }
+}
+
 
 // ADD SKILL FUNCTION
 async function addSkilledJob(name) {
@@ -426,16 +520,15 @@ async function addSkilledJob(name) {
       success: true,
     };
   }
-  
+
 }
 
 //EDIT SKILL FUNCTION
-async function editSkilledJob(job_id, name, industry) {
+async function editSkilledJob(job_id, name, industry_id) {
   const { error } = await supabase
     .from("SkilledJob")
     .update({
       job_name: name,
-      industry: industry,
     })
     .eq("job_id", job_id) // your condition
     .select();
@@ -460,7 +553,7 @@ async function deleteSkilledJob(job_id) {
     .delete()
     .eq("job_id", job_id)
     .select() // optional: returns deleted row
-    .throwOnError();
+  // .throwOnError();
 
   if (error || data.length === 0) {
     return {
