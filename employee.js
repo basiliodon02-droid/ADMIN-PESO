@@ -291,10 +291,48 @@ async function addEmployee(first, last, email, stat) {
       success: false,
     };
   } else {
-    return {
-      message: "Employee Added!",
-      success: true,
-    };
+
+    //get details of new user
+    const { data, error } = await supabase
+      .from("Users")
+      .select("*")
+      .order("user_id", { ascending: false }) // highest ID first
+      .limit(1); // only 1 row
+
+    if (error) {
+      return {
+        message: error.message,
+        success: false,
+        data: {},
+      };
+    } else {
+      //got the latest user added
+      //now insert to JobApplicationDetails table
+      const fullName = first + " " + last;
+      console.log(data);
+      //add also to JobAplication table
+      const { error } = await supabase.from("JobApplicationDetails").insert([
+        {
+          user_id: data[0].user_id,
+          fullName: fullName,
+
+        },
+      ]);
+
+      if (error) {
+        return {
+          message: error.message,
+          success: false,
+        };
+      } else {
+
+        return {
+          message: `Employee Added!`,
+          success: true,
+        };
+      }
+    }
+
   }
 }
 
@@ -317,10 +355,38 @@ async function editEmployee(userId, first, last, email, stat) {
       success: false,
     };
   } else {
-    return {
-      message: `Employee Updated!`,
-      success: true,
-    };
+    const result = await checkIfUserHasApplicationDetails(userId);
+    if (result.data.length > 0) {
+      //already has job application details row
+      return {
+        message: `Worker Updated!`,
+        success: true,
+      };
+    } else {
+      const fullName = first + " " + last;
+
+      //add also to JobAplication table
+      const { error } = await supabase.from("JobApplicationDetails").insert([
+        {
+          user_id: userId,
+          fullName: fullName,
+
+        },
+      ]);
+
+      if (error) {
+        return {
+          message: error.message,
+          success: false,
+        };
+      } else {
+
+        return {
+          message: `Worker Updated!`,
+          success: true,
+        };
+      }
+    }
   }
 }
 
@@ -361,8 +427,30 @@ async function deleteEmployer(userId) {
     };
   } else {
     return {
-      message: `Employee Deleted!`,
+      message: `Worker Deleted!`,
       success: true,
+    };
+  }
+}
+
+
+//check if user has JobApplicationDetails
+async function checkIfUserHasApplicationDetails(user_id) {
+  const { data, error } = await supabase
+    .from("JobApplicationDetails")
+    .select('*')
+    .eq("user_id", user_id);
+  if (error) {
+    return {
+      message: error.message,
+      success: false,
+      data: {},
+    };
+  } else {
+    return {
+      message: "got it",
+      success: true,
+      data: data,
     };
   }
 }

@@ -240,24 +240,30 @@ async function loadApplicants() {
   if (results.success === false) {
     alert(results.message); //browser alert message
   } else {
-
+    console.log(results);
     const tableBody = document.getElementById("applicationsTable");
     // tableBody.innerHTML = "";
+    let index = 0;
     for (i = 0; i < results.data.length; i++) {
 
       const vacancyResults = await getVacancyDetailsById(results.data[i].job_vacancy_id);
       if (vacancyResults.success === false) {
         alert(vacancyResults.message); //browser alert message
       } else {
-        const establishmentResults = await getEstablishmentDetailsById(vacancyResults.data[0].establishment_id);
-        if (establishmentResults.success === false) {
-          alert(establishmentResults.message); //browser alert message
-        } else {
+        console.log(vacancyResults);
 
-          tableBody.insertAdjacentHTML(
-            "beforeend",
-            `
-          <td>${i + 1}</td>
+        if (vacancyResults.data.length > 0) {
+          const establishmentResults = await getEstablishmentDetailsById(vacancyResults.data[0].establishment_id);
+          if (establishmentResults.success === false) {
+            alert(establishmentResults.message); //browser alert message
+          } else {
+
+            if (establishmentResults.data.length > 0) {
+              index++;
+              tableBody.insertAdjacentHTML(
+                "beforeend",
+                `
+          <td>${index}</td>
           <td>${results.data[i].firstName} ${results.data[i].middleName} ${results.data[i].lastName}</td>
           <td>${vacancyResults.data[0].job_title}</td>
           <td>${establishmentResults.data[0].establishmentName}</td>
@@ -265,13 +271,18 @@ async function loadApplicants() {
           <td>${results.data[i].createdDate}</td>
 
             `
-            //             <td class="action-icons">
-            //   <i style='display:none;' class="bi bi-eye-fill icon-view" title="View"></i>
-            //   <i style='display:none;' class="bi bi-pencil-square icon-edit" title="Edit"></i>
-            //   <i style='display:none;' class="bi bi-trash3-fill icon-delete" title="Delete"></i>
-            // </td>
-          );
+                //             <td class="action-icons">
+                //   <i style='display:none;' class="bi bi-eye-fill icon-view" title="View"></i>
+                //   <i style='display:none;' class="bi bi-pencil-square icon-edit" title="Edit"></i>
+                //   <i style='display:none;' class="bi bi-trash3-fill icon-delete" title="Delete"></i>
+                // </td>
+              );
+            }
+
+
+          }
         }
+
 
       }
     }

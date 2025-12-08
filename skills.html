@@ -159,7 +159,11 @@
       <div class="modal-box" style="width: 420px">
         <h3>Add Skill</h3>
         <input type="text" id="addSkillName" placeholder="Skill Name" />
-        <input type="text" id="addRelatedJob" placeholder="Related Job" />
+        <input type="text" id="addRelatedJob" placeholder="Description" />
+        <div class="mb-3">
+          <label class="form-label">Job Role</label>
+          <select class="form-select" id="assignJob"></select>
+        </div>
         <div class="modal-actions">
           <button class="btn-save" id="saveSkillBtn">Save</button>
           <button class="btn-cancel" id="cancelAddBtn">Cancel</button>
@@ -171,8 +175,13 @@
       <div class="modal-box" style="width: 420px">
         <h3>Edit Skill</h3>
         <input type="text" id="editSkillName" placeholder="Skill Name" />
-        <input type="text" id="editRelatedJob" placeholder="Related Job" />
+        <input type="text" id="editRelatedJob" placeholder="Description" />
+        <div class="mb-3">
+          <label class="form-label">Job Role</label>
+          <select class="form-select" id="editAssignJob"></select>
+        </div>
         <input type="hidden" id="editSkillsId" placeholder="Skills Id" />
+        <input type="hidden" id="editJobId" placeholder="Skills Id" />
         <div class="modal-actions">
           <button class="btn-save" id="updateSkillBtn">Update</button>
           <button class="btn-cancel" id="cancelEditBtn">Cancel</button>
@@ -189,6 +198,7 @@
       >
         <h2 id="skillsViewTitle">👁️ View Skill</h2>
         <input type="hidden" id="deleteSkillsId" placeholder="Skills Id" />
+       
         <div id="viewDetails"></div>
         <div class="modal-actions">
           <button type="button" class="btn-close-modal" id="closeView">
@@ -199,6 +209,7 @@
     </div>
 
     <div class="skl-overlay" id="deleteOverlay" aria-hidden="true">
+       <input type="hidden" id="deleteSkillAssignmentId" placeholder="Skill Assignment Id" />
       <div
         class="skl-modal"
         role="dialog"

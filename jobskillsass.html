@@ -107,6 +107,7 @@
                   <tr>
                     <th style="width:70px">ID</th>
                     <th>Job Title</th>
+                    <th>Industry</th>
                     <th style="width:70px" class="text-end">Actions</th>
                   </tr>
                 </thead>
@@ -152,9 +153,9 @@
               <strong>Job ⇄ Skill Assignments</strong>
               <div class="small text-muted">Which skills belong to each job.</div>
             </div>
-            <button class="btn btn-sm btn-primary assign-btn" id="btnAddAssign">
+            <!-- <button class="btn btn-sm btn-primary assign-btn" id="btnAddAssign">
               <i class="bi bi-link-45deg me-1"></i> Add
-            </button>
+            </button> -->
           </div>
           <div class="card-body p-0">
             <div class="table-responsive">
@@ -164,8 +165,8 @@
                     <th style="width:70px">ID</th>
                     <th>Job Role</th>
                     <th>Skill</th>
-                    <th>Prof.</th>
-                    <th style="width:70px" class="text-end">Actions</th>
+                    <!-- <th>Prof.</th> -->
+                    <!-- <th style="width:70px" class="text-end">Actions</th> -->
                   </tr>
                 </thead>
                 <tbody></tbody>
@@ -188,13 +189,16 @@
             <input type="hidden" id="jobId">
             <div class="mb-3">
               <label class="form-label">Job Title</label>
-              <input  class="form-control" id="jobIndustryId">
-              <input  class="form-control" id="jobIndustryName">
               <input class="form-control" id="jobTitle" required>
             </div>
-            <div class="mb-3">
+            <!-- <div class="mb-3">
               <label class="form-label">Description (optional)</label>
               <textarea class="form-control" id="jobDesc" rows="2"></textarea>
+            </div> -->
+            <div class="mb-3">
+              <label class="form-label">Industry</label>
+              <select class="form-select" id="jobIndustry"></select>
+              <!-- <div class="form-text">Optional if you will use the Assignment table for mapping.</div> -->
             </div>
           </div>
           <div class="modal-footer">
@@ -222,6 +226,10 @@
               <label class="form-label">Description (optional)</label>
               <textarea class="form-control" id="skillDesc" rows="2"></textarea>
             </div>
+            <div class="mb-3">
+              <label class="form-label">Job Role</label>
+              <select class="form-select" id="assignJob"></select>
+            </div>
           </div>
           <div class="modal-footer">
             <button class="btn btn-light" data-bs-dismiss="modal" type="button">Cancel</button>
@@ -231,7 +239,7 @@
       </div>
     </div>
 
-    <div class="modal fade" id="modalAssign" tabindex="-1" aria-hidden="true">
+    <!-- <div class="modal fade" id="modalAssign" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog">
         <form class="modal-content" id="formAssign">
           <div class="modal-header">
@@ -239,7 +247,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <input type="text" id="assignId">
+            <input type="hidden" id="assignId">
             <div class="mb-3">
               <label class="form-label">Job Role</label>
               <select class="form-select" id="assignJob" required></select>
@@ -259,7 +267,7 @@
           </div>
         </form>
       </div>
-    </div>
+    </div> -->
   </main>
 </body>
 </html>
