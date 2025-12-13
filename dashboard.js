@@ -1,115 +1,55 @@
-// Supabase client (from supabaseClient.js)
-const supabase = window.supabaseClient;
-
-/* ===============================
-   COUNT EMPLOYERS
-================================ */
-async function loadEmployerCount() {
-  const { count, error } = await supabase
-    .from("employers")
-    .select("*", { count: "exact", head: true });
-
-  if (!error) {
-    document.getElementById("employerCount").textContent = count;
-  }
+// 🚨 Redirect if not logged in
+if (localStorage.getItem("isLoggedIn") === "FALSE") {
+  window.location.href = "./index.html";
 }
 
-/* ===============================
-   COUNT EMPLOYEES
-================================ */
-async function loadEmployeeCount() {
-  const { count, error } = await supabase
-    .from("employees")
-    .select("*", { count: "exact", head: true });
-
-  if (!error) {
-    document.getElementById("employeeCount").textContent = count;
-  }
-}
-
-/* ===============================
-   RECENT ACTIVITIES (MAX 10)
-================================ */
-async function loadRecentActivities() {
-  const { data, error } = await supabase
-    .from("activities")
-    .select("description, created_at")
-    .order("created_at", { ascending: false })
-    .limit(10);
-
-  const list = document.getElementById("recentActivitiesList");
-  list.innerHTML = "";
-
-  if (error || data.length === 0) {
-    list.innerHTML = "<li>No recent activities</li>";
-    return;
-  }
-
-  data.forEach(activity => {
-    const li = document.createElement("li");
-    li.textContent = `${activity.description} • ${formatDateTime(activity.created_at)}`;
-    list.appendChild(li);
-  });
-}
-
-/* ===============================
-   SYSTEM LAST UPDATE
-================================ */
-function loadSystemLastUpdate() {
-  const now = new Date();
-  document.getElementById("systemLastUpdate").textContent =
-    formatDateTime(now);
-}
-
-/* ===============================
-   SYSTEM ONLINE / OFFLINE
-================================ */
-function updateSystemStatus() {
-  const statusEl = document.getElementById("systemStatus");
-
-  if (navigator.onLine) {
-    statusEl.textContent = "Online";
-    statusEl.classList.remove("status-offline");
-    statusEl.classList.add("status-online");
-  } else {
-    statusEl.textContent = "Offline";
-    statusEl.classList.remove("status-online");
-    statusEl.classList.add("status-offline");
-  }
-}
-
-/* ===============================
-   DATE FORMATTER
-================================ */
-function formatDateTime(date) {
-  return new Date(date).toLocaleString("en-PH", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
-}
-
-/* ===============================
-   PROFILE MENU
-================================ */
-function toggleProfileMenu() {
-  document.getElementById("profile-menu").classList.toggle("show");
-}
-
-/* ===============================
-   INIT LOAD
-================================ */
 document.addEventListener("DOMContentLoaded", () => {
-  loadEmployerCount();
-  loadEmployeeCount();
-  loadRecentActivities();
-  loadSystemLastUpdate();
-  updateSystemStatus();
+  
+  // ===== PROFILE DROPDOWN =====
+  const profileIcon = document.getElementById("profileIcon");
+  const profileDropdown = document.getElementById("profileDropdown");
 
-  // auto detect online/offline
-  window.addEventListener("online", updateSystemStatus);
-  window.addEventListener("offline", updateSystemStatus);
+  profileIcon.addEventListener("click", (e) => {
+    e.stopPropagation(); // prevent body click
+    profileDropdown.classList.toggle("show");
+  });
+
+  // Close dropdown if click outside
+  document.addEventListener("click", () => {
+    profileDropdown.classList.remove("show");
+  });
+
+  // ===== SIDEBAR SUBMENU TOGGLE =====
+  const toggleMenus = document.querySelectorAll(".toggle-menu");
+
+  toggleMenus.forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation(); // prevent unwanted bubbling
+
+      const submenu = btn.nextElementSibling;
+
+      // Close other submenus
+      document.querySelectorAll(".submenu").forEach((menu) => {
+        if (menu !== submenu) {
+          menu.classList.remove("show");
+          menu.previousElementSibling?.classList.remove("open");
+        }
+      });
+
+      // Toggle current submenu
+      submenu.classList.toggle("show");
+      btn.classList.toggle("open");
+    });
+  });
+
+  // ===== OPTIONAL: Highlight active submenu based on URL =====
+  const currentPath = window.location.pathname.split("/").pop();
+  document.querySelectorAll(".submenu-item").forEach((link) => {
+    if (link.getAttribute("href") === currentPath) {
+      link.classList.add("active");
+      link.closest(".submenu").classList.add("show");
+      link.closest(".submenu").previousElementSibling.classList.add("open");
+    }
+  });
 });
