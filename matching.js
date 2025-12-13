@@ -8,6 +8,31 @@ document.addEventListener("DOMContentLoaded", async () => {
   const runText = $("#runText");
   const jobSearch = $("#searchInput"); // search input
 
+  // -------------------------------
+  // SIDEBAR SUBMENU TOGGLE
+  // -------------------------------
+   document.querySelectorAll(".toggle-menu").forEach((btn) => {
+  btn.addEventListener("click", (e) => {
+    e.preventDefault();
+
+    const submenu = btn.nextElementSibling;
+
+    document.querySelectorAll(".submenu").forEach((list) => {
+      if (list !== submenu) list.classList.remove("show");
+    });
+
+    document.querySelectorAll(".toggle-menu").forEach((b) => {
+      if (b !== btn) b.classList.remove("open");
+    });
+
+    submenu.classList.toggle("show");
+    btn.classList.toggle("open"); // ⭐ IMPORTANT
+  });
+});
+
+  // -------------------------------
+  // RUN JOB MATCHING
+  // -------------------------------
   runBtn.addEventListener("click", async () => {
     runBtn.disabled = true;
     spinner.style.display = "inline-block";
@@ -23,7 +48,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // -------------------------------
-  // Helper functions
+  // HELPER FUNCTIONS
   // -------------------------------
   async function fetchTable(tableName) {
     const { data, error } = await supabase.from(tableName).select("*");
@@ -53,8 +78,51 @@ document.addEventListener("DOMContentLoaded", async () => {
     return text ? text.toLowerCase().split(/\s+/).filter(w => w) : [];
   }
 
+  function scoreField(text, terms, weight) {
+    if (!text) return 0;
+    let score = 0;
+    const lower = text.toLowerCase();
+    for (const t of terms) {
+      const term = t.toLowerCase();
+      if (lower === term || lower.includes(term)) score += 1 * weight;
+    }
+    return score;
+  }
+
+  async function searchWorkExperience(terms) {
+    const { data, error } = await supabase.from("WorkExperience").select("*");
+    if (error) return [];
+    return data
+      .map(row => ({
+        user_id: row.user_id,
+        points: scoreField(row.position, terms, 2) +
+                scoreField(row.address, terms, 2) +
+                scoreField(row.company, terms, 2)
+      }))
+      .filter(item => item.points > 0);
+  }
+
+  async function searchEligibility(terms) {
+    const { data, error } = await supabase.from("Eligibility").select("*");
+    if (error) return [];
+    return data
+      .map(row => ({ user_id: row.user_id, points: scoreField(row.name, terms, 1) }))
+      .filter(item => item.points > 0);
+  }
+
+  async function searchTraining(terms) {
+    const { data, error } = await supabase.from("Trainings").select("*");
+    if (error) return [];
+    return data
+      .map(row => ({
+        user_id: row.user_id,
+        points: scoreField(row.name, terms, 1.5) + scoreField(row.skills_acquired, terms, 1.5)
+      }))
+      .filter(item => item.points > 0);
+  }
+
   // -------------------------------
-  // Main job matching logic
+  // MAIN JOB MATCHING
   // -------------------------------
   async function runJobMatching() {
     const { data: vacancies } = await supabase
@@ -85,11 +153,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     workExps.forEach(w => {
       applicantTextMap[w.user_id] += ` ${w.position ?? ""} ${w.company ?? ""} ${w.address ?? ""}`.toLowerCase();
     });
-
     eligibilities.forEach(e => {
       applicantTextMap[e.user_id] += ` ${e.name ?? ""}`.toLowerCase();
     });
-
     trainings.forEach(t => {
       applicantTextMap[t.user_id] += ` ${t.name ?? ""} ${t.skills_acquired ?? ""}`.toLowerCase();
     });
@@ -98,7 +164,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     let index = 1;
     for (const vac of vacancies) {
       const { vacancy_id, job_title, remarks, industry_id, establishment_id, status } = vac;
-
       const industry = await getIndustryById(industry_id);
       const establishment = await getEstablishmentById(establishment_id);
 
@@ -149,7 +214,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // -------------------------------
-  // LIVE SEARCH (filters all columns)
+  // LIVE SEARCH
   // -------------------------------
   jobSearch.addEventListener("input", () => {
     const query = jobSearch.value.toLowerCase();
