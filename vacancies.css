@@ -302,6 +302,11 @@ tbody tr:last-child td{
   color:#eb43357d;
 }
 
+.bi-eye-slash {
+  color: #eb4335; /* red for unviewed */
+}
+
+
 .modal{
   display:none;
   position:fixed;
