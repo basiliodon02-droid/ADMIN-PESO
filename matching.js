@@ -450,7 +450,7 @@ async function getUserById(id) {
     .select("*")
     .eq("user_id", id);
   if (error) {
-    console.log("faled to get user");
+    console.log("failed to get user");
     return {
       message: error.message,
       success: false,
