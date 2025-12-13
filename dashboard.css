@@ -224,16 +224,7 @@ body.dashboard-body {
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 }
 
-.summary-card h3 {
-  color: #333;
-  margin-bottom: 10px;
-}
 
-.summary-card p {
-  color: #4a47ff;
-  font-weight: bold;
-  font-size: 1.4rem;
-}
 
 .system-summary {
   background: #4a47ff;
