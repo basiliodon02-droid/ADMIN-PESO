@@ -1,10 +1,12 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const $ = (s, c = document) => c.querySelector(s);
   const $$ = (s, c = document) => [...c.querySelectorAll(s)];
-  const tableBody = $("#matchingTable tbody");
+
+  const tableBody = $("#tableBody"); // tbody where rows go
   const runBtn = $("#runMatching");
   const spinner = $("#spinner");
   const runText = $("#runText");
+  const jobSearch = $("#searchInput"); // search input
 
   runBtn.addEventListener("click", async () => {
     runBtn.disabled = true;
@@ -55,8 +57,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Main job matching logic
   // -------------------------------
   async function runJobMatching() {
-    // Fetch all active vacancies
-    const { data: vacancies } = await supabase.from("JobVacancy")
+    const { data: vacancies } = await supabase
+      .from("JobVacancy")
       .select("*")
       .eq("status", "Active")
       .order("vacancy_id", { ascending: true });
@@ -81,21 +83,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     allUserIds.forEach(uid => applicantTextMap[uid] = "");
 
     workExps.forEach(w => {
-      let txt = applicantTextMap[w.user_id];
-      txt += ` ${w.position ?? ""} ${w.company ?? ""} ${w.address ?? ""}`;
-      applicantTextMap[w.user_id] = txt.toLowerCase();
+      applicantTextMap[w.user_id] += ` ${w.position ?? ""} ${w.company ?? ""} ${w.address ?? ""}`.toLowerCase();
     });
 
     eligibilities.forEach(e => {
-      let txt = applicantTextMap[e.user_id];
-      txt += ` ${e.name ?? ""}`;
-      applicantTextMap[e.user_id] = txt.toLowerCase();
+      applicantTextMap[e.user_id] += ` ${e.name ?? ""}`.toLowerCase();
     });
 
     trainings.forEach(t => {
-      let txt = applicantTextMap[t.user_id];
-      txt += ` ${t.name ?? ""} ${t.skills_acquired ?? ""}`;
-      applicantTextMap[t.user_id] = txt.toLowerCase();
+      applicantTextMap[t.user_id] += ` ${t.name ?? ""} ${t.skills_acquired ?? ""}`.toLowerCase();
     });
 
     // Process each vacancy
@@ -114,11 +110,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       ];
 
       if (vacancyWords.length === 0) {
-        tableBody.innerHTML += `
-          <tr>
-            <td>${index++}</td>
-            <td colspan="6">No Match Found</td>
-          </tr>`;
+        tableBody.innerHTML += `<tr><td>${index++}</td><td colspan="6">No Match Found</td></tr>`;
         continue;
       }
 
@@ -134,11 +126,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         .slice(0, 3);
 
       if (ranked.length === 0) {
-        tableBody.innerHTML += `
-          <tr>
-            <td>${index++}</td>
-            <td colspan="6">No Match Found</td>
-          </tr>`;
+        tableBody.innerHTML += `<tr><td>${index++}</td><td colspan="6">No Match Found</td></tr>`;
         continue;
       }
 
@@ -153,14 +141,24 @@ document.addEventListener("DOMContentLoaded", async () => {
             <td>${job_title}</td>
             <td>${industry.industry_name ?? ""}</td>
             <td>${establishment.establishmentName ?? ""}</td>
-            <td>${status}</td>
+            <td><span class="${status == "Active" ? "badge active" : "badge pending"}">${status}</span></td>
             <td align="center">${pct.toFixed(2)}%</td>
           </tr>`;
       }
     }
   }
-});
 
+  // -------------------------------
+  // LIVE SEARCH (filters all columns)
+  // -------------------------------
+  jobSearch.addEventListener("input", () => {
+    const query = jobSearch.value.toLowerCase();
+    const rows = tableBody.querySelectorAll("tr");
+    rows.forEach(row => {
+      row.style.display = row.textContent.toLowerCase().includes(query) ? "" : "none";
+    });
+  });
+});
 
 
 //GET LIST OF JOB VACANCIES FUNCTION
