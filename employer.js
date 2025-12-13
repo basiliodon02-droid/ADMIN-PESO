@@ -363,20 +363,29 @@ document.addEventListener("DOMContentLoaded", function () {
         const row = tableBody.insertRow();
         row.innerHTML = `
                   <td>${tableBody.rows.length}</td>
-                  <td>${getEmployers.data[i].firstName} ${getEmployers.data[i].middleName ?? ""
+                  <td>
+                  ${getEmployers.data[i].firstName} ${getEmployers.data[i].middleName ?? ""
           } ${getEmployers.data[i].lastName ?? ""} ${getEmployers.data[i].suffix ?? ""
-          }</td>
+          }
+                  </td>
                   <td>${getEmployers.data[i].email}</td>
                   <td>${statusBadge(getEmployers.data[i].status)}</td>
                   <td>${new Date(getEmployers.data[i].created_at)
             .toISOString()
-            .split("T")[0]
-          }</td>
-                  
-                  <td class="action-icons">
+            .split("T")[0]}
+                  </td>
+                  <td style='font-size:14px;'>
+                    ${getEmployers.data[i].street ? getEmployers.data[i].street + ", " : ""}
+                    ${getEmployers.data[i].barangay ? getEmployers.data[i].barangay + ", " : ""}
+                    ${getEmployers.data[i].city ? getEmployers.data[i].city + ", " : ""}
+                    ${getEmployers.data[i].municipality ?? ""}
+                  </td>
+                  <td>
+                    <div class="action-icons">
                     <i class="bi bi-eye-fill icon-view-emp" title="View"></i>
                     <i class="bi bi-pencil-square icon-edit-emp" title="Edit"></i>
                     <i class="bi bi-trash3-fill icon-delete-emp" title="Delete"></i>
+                    </div>
                   </td>
                   <td style='display:none;'>${getEmployers.data[i].user_id}</td>
                   <td style='display:none;'>${getEmployers.data[i].firstName
@@ -457,6 +466,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const email = row.children[2].textContent;
       const status = row.dataset.status || row.children[3].textContent;
       const date = row.dataset.date || row.children[4].textContent;
+      const address = row.dataset.date || row.children[5].textContent;
 
       empViewDetails.innerHTML = `
         <p><b>Employer Name:  </b><span>${fullName}</span></p>
@@ -464,6 +474,7 @@ document.addEventListener("DOMContentLoaded", function () {
         <p><b>Status:  </b><span>${typeof status === "string" ? status : row.children[3].innerText
         }</span></p>
         <p><b>Date Registered:  </b><span>${date}</span></p>
+        <p><b>Address:  </b><span>${address}</span></p>
       `;
       empViewOverlay.style.display = "flex";
       empViewOverlay.setAttribute("aria-hidden", "false");
@@ -476,15 +487,15 @@ document.addEventListener("DOMContentLoaded", function () {
       empRowToEdit = row;
 
       document.getElementById("editEmpFirst").value =
-        row.children[7].textContent; //hidden td for first name
+        row.children[8].textContent; //hidden td for first name
       document.getElementById("editEmpLast").value =
-        row.children[8].textContent; //hidden td for last name
+        row.children[9].textContent; //hidden td for last name
       document.getElementById("editEmpEmail").value =
         row.children[2].textContent;
       document.getElementById("editEmpStatus").value =
         row.children[3].textContent;
       document.getElementById("editEmpUserId").value =
-        row.children[6].textContent;
+        row.children[7].textContent;
       editEmpModal.style.display = "flex";
       editEmpModal.setAttribute("aria-hidden", "false");
     }
@@ -496,7 +507,7 @@ document.addEventListener("DOMContentLoaded", function () {
       empRowToDelete = row;
       const name = row.children[1].textContent;
       document.getElementById("deleteEmpUserId").value =
-        row.children[6].innerText; // also get user_id as reference for db to delete
+        row.children[7].innerText; // also get user_id as reference for db to delete
       deleteEmpBody.textContent = `Are you sure you want to delete "${name}"?`;
       deleteEmpOverlay.style.display = "flex";
       deleteEmpOverlay.setAttribute("aria-hidden", "false");

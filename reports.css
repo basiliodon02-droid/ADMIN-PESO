@@ -196,6 +196,10 @@ body.dashboard-body {
   border-radius: 12px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
   text-align: center;
+  display:flex;
+  justify-content: start;
+  align-items: center;
+  height:150px;
 }
 
 .card h3 {
@@ -222,6 +226,11 @@ body.dashboard-body {
   border-radius: 12px;
   text-align: center;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: start;
+  flex-direction: column;
+  align-items: center;
+  height: 200px;
 }
 
 .summary-card h3 {
@@ -327,4 +336,22 @@ body.dashboard-body {
 
 .submenu.show ~ .toggle-menu i {
   transform: rotate(180deg);
+}
+
+
+
+/* loading animation */
+.loader {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #ddd;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
