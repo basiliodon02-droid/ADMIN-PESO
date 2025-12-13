@@ -14,7 +14,6 @@ document.addEventListener("DOMContentLoaded", () => {
     profileDropdown.classList.toggle("show");
   });
 
-  // Close dropdown if click outside
   document.addEventListener("click", () => {
     profileDropdown.classList.remove("show");
   });
@@ -25,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
   toggleMenus.forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.preventDefault();
-      e.stopPropagation(); // prevent unwanted bubbling
+      e.stopPropagation(); 
 
       const submenu = btn.nextElementSibling;
 
@@ -43,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // ===== OPTIONAL: Highlight active submenu based on URL =====
+  // ===== Highlight active submenu based on URL =====
   const currentPath = window.location.pathname.split("/").pop();
   document.querySelectorAll(".submenu-item").forEach((link) => {
     if (link.getAttribute("href") === currentPath) {
@@ -52,4 +51,19 @@ document.addEventListener("DOMContentLoaded", () => {
       link.closest(".submenu").previousElementSibling.classList.add("open");
     }
   });
+
+  // ===== LIVE SYSTEM LAST UPDATE =====
+  const systemLastUpdate = document.getElementById("systemLastUpdate");
+
+  function updateSystemTime() {
+    const now = new Date();
+    const formattedTime = now.toLocaleString(); // You can customize format
+    systemLastUpdate.textContent = `Last updated: ${formattedTime}`;
+  }
+
+  // Update immediately
+  updateSystemTime();
+
+  // Update every 1 second
+  setInterval(updateSystemTime, 1000);
 });
