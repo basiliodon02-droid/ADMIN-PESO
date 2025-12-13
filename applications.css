@@ -84,6 +84,7 @@ body.dashboard-body {
   display: flex;
 }
 
+/* ===== SIDEBAR LAYOUT ===== */
 .sidebar {
   width: 240px;
   background: #1e3a8a;
@@ -97,30 +98,41 @@ body.dashboard-body {
   flex-direction: column;
 }
 
+/* LOGO */
 .sidebar .logo {
   text-align: center;
   font-size: 1.6rem;
-  margin: 10px 0;
+  margin: 10px 0 20px;
   color: #ffd972;
   font-weight: 700;
   letter-spacing: 1px;
 }
 
+/* ===== MAIN NAV LINK ===== */
 .sidebar .nav-link {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: #fff;
+  justify-content: space-between; /* ⭐ FIX SA CHEVRON */
+  background: #ffffff;
   color: #000;
   border: 2px solid #000;
-  border-radius: 10px;
+  border-radius: 12px;
   font-weight: 600;
   font-size: 0.95rem;
   margin-bottom: 8px;
-  padding: 10px 12px;
+  padding: 10px 14px;
   transition: all 0.3s ease;
+  cursor: pointer;
 }
 
+/* LEFT CONTENT (ICON + TEXT) */
+.sidebar .nav-link span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ACTIVE & HOVER */
 .sidebar .nav-link.active,
 .sidebar .nav-link:hover {
   background: #ffd972;
@@ -128,9 +140,22 @@ body.dashboard-body {
   transform: scale(1.03);
 }
 
+/* ===== DROPDOWN CHEVRON ===== */
+.chev {
+  font-size: 14px;
+  transition: transform 0.3s ease;
+}
+
+/* ROTATE WHEN OPEN */
+.toggle-menu.open .chev {
+  transform: rotate(180deg);
+}
+
+/* ===== SUBMENU ===== */
 .sidebar .submenu {
   display: none;
-  margin-left: 5px;
+  margin-left: 6px;
+  margin-bottom: 6px;
   transition: all 0.3s ease-in-out;
 }
 
@@ -138,32 +163,37 @@ body.dashboard-body {
   display: block;
 }
 
+/* SUBMENU ITEMS */
 .sidebar .submenu-item {
   display: block;
   background: #f8f9fa;
   color: #000;
   border: 1.5px solid #000;
-  border-radius: 8px;
+  border-radius: 10px;
   margin: 4px 0;
-  padding: 8px 10px;
+  padding: 8px 12px;
   font-size: 0.9rem;
   font-weight: 500;
   text-decoration: none;
   transition: all 0.3s ease;
 }
 
+/* SUBMENU HOVER */
 .sidebar .submenu-item:hover {
   background: #ffd972;
-  transform: translateX(5px);
+  transform: translateX(6px);
 }
+
 
 .toggle-menu i {
   transition: transform 0.3s ease;
 }
 
-.submenu.show ~ .toggle-menu i {
+.toggle-menu.open i {
   transform: rotate(180deg);
 }
+
+
 
 .main-content {
   margin-left: 260px;
