@@ -529,6 +529,7 @@ body.dashboard-body {
   width: 100%;
   border-collapse: collapse;
   background: #fff;
+  
 }
 
 #employersTable thead th {
@@ -552,6 +553,11 @@ body.dashboard-body {
 
 #employersTable tbody tr:hover {
   background: #f9fafb;
+}
+
+td {
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .badge.inactive {

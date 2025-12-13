@@ -23,24 +23,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
- document.querySelectorAll(".toggle-menu").forEach((btn) => {
-  btn.addEventListener("click", (e) => {
-    e.preventDefault();
+  document.querySelectorAll(".toggle-menu").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
 
-    const submenu = btn.nextElementSibling;
+      const submenu = btn.nextElementSibling;
 
-    document.querySelectorAll(".submenu").forEach((list) => {
-      if (list !== submenu) list.classList.remove("show");
+      document.querySelectorAll(".submenu").forEach((list) => {
+        if (list !== submenu) list.classList.remove("show");
+      });
+
+      document.querySelectorAll(".toggle-menu").forEach((b) => {
+        if (b !== btn) b.classList.remove("open");
+      });
+
+      submenu.classList.toggle("show");
+      btn.classList.toggle("open"); // ⭐ IMPORTANT
     });
-
-    document.querySelectorAll(".toggle-menu").forEach((b) => {
-      if (b !== btn) b.classList.remove("open");
-    });
-
-    submenu.classList.toggle("show");
-    btn.classList.toggle("open"); // ⭐ IMPORTANT
   });
-});
 
 
   const tableBody = document.querySelector("#applicationsTable tbody");
@@ -302,7 +302,7 @@ async function loadApplicants() {
 
 
 
-//GET LIST OF BRGY FUNCTION
+
 async function getApplicantsList() {
   const { data, error } = await supabase
     .from("JobApplication")

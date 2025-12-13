@@ -79,16 +79,111 @@
       </div>
     </header>
 
-    <section class="cards">
-      <div class="card"><h3>🧑 Skilled Workers</h3><p id="workers">0</p></div>
-      <div class="card"><h3>🏢 Establishments</h3><p id="establishments">0</p></div>
-      <div class="card"><h3>💼 Active Vacancies</h3><p id="vacancies">0</p></div>
-      <div class="card"><h3>📄 Applications</h3><p id="applicants">0</p></div>
-    </section>
+    <label>
+      From:
+      <input type="date" id="dateFrom">
+    </label>
 
+    <label>
+      To:
+      <input type="date" id="dateTo">
+    </label>
+
+    <section class="cards">
+      <div class="card">
+        <h3>👷 Workers</h3>
+        <div id='workerLoader' class="loader"></div>
+        <div id='workerStats' style="display:flex; flex-direction: row; justify-content: space-around; align-items: center; gap:10px;">
+          <div>
+            <label>Active:</label><p id="workers">0</p>
+          </div>
+          <div>
+            <label>Inactive:</label><p id="workers-inactive">0</p>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>👨‍💼 Employers</h3>
+        <div id='employerLoader' class="loader"></div>
+        <div id='employerStats' style="display:flex; flex-direction: row; justify-content: space-around; align-items: center; gap:10px;">
+          <div>
+            <label>Active:</label><p id="employers">0</p>
+          </div>
+          <div>
+            <label>Inactive:</label><p id="employers-inactive">0</p>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>💼 Vacancies</h3>
+        <div id='vacanciesLoader' class="loader"></div>
+        <div id='vacanciesStats' style="display:flex; flex-direction: row; justify-content: space-around; align-items: center; gap:10px;">
+          <div>
+            <label>Posted:</label><p id="postedVacancies">0</p>
+          </div>
+          <div>
+            <label>Completed:</label><p id="closedVacancies">0</p>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>📝 Applications</h3>
+        <div id='applicationsLoader' class="loader"></div>
+        <div id='applicationsStats' style="display:flex; flex-direction: row; justify-content: space-around; align-items: center; gap:10px;">
+          <div>
+            <label>Submitted:</label><p id="applicationsSubmitted">0</p>
+          </div>
+          <div>
+            <label>Hired:</label><p id="applicationsHired">0</p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+    <hr><br>
     <section class="summary-grid">
-      <div class="summary-card"><h3>🔔 Pending User Verifications</h3><p id="pendingVerifications">0</p></div>
-      <div class="summary-card"><h3>⚙️ System Status</h3><p>✅ Online</p></div>
+      <div class="summary-card">
+        <div style="height: 100px;gap: 10px; display:flex; flex-direction: row; justify-content: center; align-items: center;">
+          <h3>💼</h3>
+          <h3 style="text-align: left;">Active Vacancies</h3>
+        </div>
+        
+        <div id='activeVacanciesLoader' class="loader"></div>
+        <div id='activeVacanciesStats' style="display:flex; flex-direction: row; justify-content: space-around; align-items: center; gap:10px;">
+          <p id="vacancies">0</p>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div style="height: 100px;gap: 10px; display:flex; flex-direction: row; justify-content: start; align-items: center;">
+          <h3>🏢</h3>
+          <h3 style="text-align: left;">Active Establishments</h3>
+        </div>
+        <div id='activeEstablishmentsLoader' class="loader"></div>
+        <div id='activeEstablishmentsStats' style="display:flex; flex-direction: row; justify-content: space-around; align-items: center; gap:10px;">
+          <p id="establishments">0</p>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div style="height: 100px;gap: 10px; display:flex; flex-direction: row; justify-content: start; align-items: center;">
+          <h3>📄</h3>
+          <h3 style="text-align: left;">Active Applications</h3>
+        </div>
+        <div id='activeApplicationsLoader' class="loader"></div>
+        <div id='activeApplicationsStats' style="display:flex; flex-direction: row; justify-content: space-around; align-items: center; gap:10px;">
+          <p id="applicants">0</p>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div style="height: 100px;gap: 10px; display:flex; flex-direction: row; justify-content: start; align-items: center;">
+          <h3>🔔</h3>
+          <h3 style="text-align: left;">Pending User Verifications</h3>
+        </div>
+        <div id='pendingUsersLoader' class="loader"></div>
+        <div id='pendingUsersStats' style="display:flex; flex-direction: row; justify-content: space-around; align-items: center; gap:10px;">
+          <p id="pendingVerifications">0</p>
+        </div>
+      </div>
+      <!-- <div class="summary-card"><h3>⚙️ System Status</h3><p>✅ Online</p></div> -->
     </section>
 
   </main>
