@@ -59,16 +59,6 @@
   background-color: #ffd972;
 }
 
-.profile-dropdown ul li a.logout {
-  color: red;
-  text-align: center;
-  width: 100%;
-  display: block;
-}
-
-.profile-dropdown ul li a.logout:hover {
-  text-align: center;
-}
 
 .profile-dropdown ul li a {
   text-decoration: none;
