@@ -104,18 +104,36 @@
 
     <!-- STATUS TRACKING -->
     <section class="status-tracking-section">
-
       <div class="status-box">
-        <h2>🏢 Employers</h2>
-        <div class="status-value">
-          <span id="employerCount">0</span>
+        <div style="gap: 10px; display:flex; flex-direction: row; justify-content: center; align-items: center;">
+          <h2>🏢</h3>
+          <h2 style="text-align: left;">Employers</h3>
+        </div>
+        <div id='employersLoader' class="loader"></div>
+        <div id='employersStats' style="display:flex; flex-direction: row; justify-content: space-around; align-items: center; gap:10px;">
+          <div class="status-value">
+            <span id="employerCount">0</span>
+          </div>
         </div>
       </div>
 
-      <div class="status-box">
+      <!-- <div class="status-box">
         <h2>👨‍💼 Employees</h2>
         <div class="status-value">
           <span id="employeeCount">0</span>
+        </div>
+      </div> -->
+
+      <div class="status-box">
+        <div style="gap: 10px; display:flex; flex-direction: row; justify-content: center; align-items: center;">
+          <h2>👨‍💼</h3>
+          <h2 style="text-align: left;">Employees</h3>
+        </div>
+        <div id='employeesLoader' class="loader"></div>
+        <div id='employeesStats' style="display:flex; flex-direction: row; justify-content: space-around; align-items: center; gap:10px;">
+          <div class="status-value">
+            <span id="employeeCount">0</span>
+          </div>
         </div>
       </div>
 

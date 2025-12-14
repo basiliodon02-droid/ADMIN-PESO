@@ -4,7 +4,7 @@ if (localStorage.getItem("isLoggedIn") === "FALSE") {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  
+
   // ===== PROFILE DROPDOWN =====
   const profileIcon = document.getElementById("profileIcon");
   const profileDropdown = document.getElementById("profileDropdown");
@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
   toggleMenus.forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.preventDefault();
-      e.stopPropagation(); 
+      e.stopPropagation();
 
       const submenu = btn.nextElementSibling;
 
@@ -67,3 +67,82 @@ document.addEventListener("DOMContentLoaded", () => {
   // Update every 1 second
   setInterval(updateSystemTime, 1000);
 });
+
+
+//GET LIST OF ACtive EMPLOYEE/WORKER FUNCTION
+async function getEmployeeList() {
+  const { data, error } = await supabase
+    .from("Users")
+    .select("*")
+    .eq("role", "Worker")
+    .eq("status", "Active")
+    .order("user_id", { ascending: true });
+
+  if (error) {
+    return {
+      message: error.message,
+      success: false,
+      data: {},
+    };
+  } else {
+    return {
+      message: "got it",
+      success: true,
+      data: data,
+    };
+  }
+}
+
+
+//GET LIST OF ACtive EMPLOYEE/WORKER FUNCTION
+async function getEmployerList() {
+  const { data, error } = await supabase
+    .from("Users")
+    .select("*")
+    .eq("role", "Employer")
+    .eq("status", "Active")
+    .order("user_id", { ascending: true });
+
+  if (error) {
+    return {
+      message: error.message,
+      success: false,
+      data: {},
+    };
+  } else {
+    return {
+      message: "got it",
+      success: true,
+      data: data,
+    };
+  }
+}
+
+window.onload = async function () {
+
+  document.getElementById("employeesStats").style.display = "none";
+  document.getElementById("employersStats").style.display = "none";
+
+  document.getElementById("employeesLoader").style.display = "flex";
+  document.getElementById("employersLoader").style.display = "flex";
+
+  const resultEmployer = await getEmployerList();
+  if (resultEmployer.success === false) {
+    alert(resultEmployer.message); //browser alert message
+  } else {
+    document.getElementById("employersStats").style.display = "flex";
+    document.getElementById("employersLoader").style.display = "none";
+    document.getElementById("employerCount").innerText = resultEmployer.data.length;
+  }
+
+  const resultEmployee = await getEmployeeList();
+  if (resultEmployee.success === false) {
+    alert(resultEmployee.message); //browser alert message
+  } else {
+    document.getElementById("employeesStats").style.display = "flex";
+    document.getElementById("employeesLoader").style.display = "none";
+    document.getElementById("employeeCount").innerText = resultEmployee.data.length;
+  }
+
+
+}
