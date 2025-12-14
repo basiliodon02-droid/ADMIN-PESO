@@ -67,19 +67,19 @@
       <div class="card profile-card">
         <div class="profile-header">
           <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Admin Avatar" class="profile-avatar" />
-          <h2 id="displayName">Jerome Dela Cruz</h2>
-          <p>System Administrator | SKILLocal</p>
+          <h2 id="displayName">-</h2>
+          <p id="role">-</p>
         </div>
 
         <div class="profile-info">
           <h3>Account Information</h3>
           <table>
-            <tr><th>Full Name:</th><td id="nameCell">Jerome Dela Cruz</td></tr>
-            <tr><th>Email:</th><td id="emailCell">admin@skillocal.com</td></tr>
-            <tr><th>Username:</th><td id="usernameCell">adminJer</td></tr>
-            <tr><th>Contact Number:</th><td id="contactCell">+63 912 345 6789</td></tr>
-            <tr><th>Role:</th><td>System Administrator</td></tr>
-            <tr><th>Date Joined:</th><td>January 15, 2024</td></tr>
+            <tr><th>Full Name:</th><td id="nameCell">-</td></tr>
+            <tr><th>Email:</th><td id="emailCell">-</td></tr>
+            <!-- <tr><th>Username:</th><td id="usernameCell">adminJer</td></tr> -->
+            <tr><th>Contact Number:</th><td id="contactCell">-</td></tr>
+            <tr><th>Role:</th><td id="roleCell">-</td></tr>
+            <tr><th>Date Joined:</th><td id="createDateCell">-</td></tr>
           </table>
         </div>
 
@@ -100,23 +100,38 @@
 
       <form id="editForm">
         <div class="input-box">
-          <label for="editName">Full Name</label>
-          <input type="text" id="editName" value="Jerome Dela Cruz" required />
+          <label for="editFName">First Name</label>
+          <input type="text" id="editFName" value="" required />
+        </div>
+
+        <div class="input-box">
+          <label for="editMName">Middle Name</label>
+          <input type="text" id="editMName" value="" />
+        </div>
+
+        <div class="input-box">
+          <label for="editLName">Last Name</label>
+          <input type="text" id="editLName" value="" required />
+        </div>
+
+        <div class="input-box">
+          <label for="editSuffix">Suffix</label>
+          <input type="text" id="editSuffix" value="" />
         </div>
 
         <div class="input-box">
           <label for="editEmail">Email</label>
-          <input type="email" id="editEmail" value="admin@skillocal.com" required />
+          <input type="email" id="editEmail" value="" required />
         </div>
 
-        <div class="input-box">
+        <!-- <div class="input-box">
           <label for="editUsername">Username</label>
           <input type="text" id="editUsername" value="adminJer" required />
-        </div>
+        </div> -->
 
         <div class="input-box">
           <label for="editContact">Contact Number</label>
-          <input type="text" id="editContact" value="+63 912 345 6789" required />
+          <input type="text" id="editContact" value="" required />
         </div>
 
         <div class="input-box">
