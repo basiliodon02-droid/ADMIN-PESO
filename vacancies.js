@@ -139,10 +139,11 @@ document.addEventListener("DOMContentLoaded", function () {
                   <td><span class="badge ${status === "Active" ? "active" : "pending"}">${status != undefined ? status : '-'}</span></td>
                   <td>${createdDate != undefined ? new Date(createdDate).toISOString().split("T")[0] : "-"} </td>
                   <td class="action-icons">
-                    <i class="bi bi-eye-fill icon-view" title="View" data-index="${i}"></i>
-                    <i class="bi bi-pencil-square icon-edit" title="Edit" data-index="${i}"></i>
-                    <i class="bi bi-trash3-fill icon-delete" title="Delete" data-index="${i}"></i>
+                  <i class="bi bi-eye-slash-fill icon-view" title="View" data-index="${i}"></i>
+                  <i class="bi bi-pencil-square icon-edit" title="Edit" data-index="${i}"></i>
+                  <i class="bi bi-trash3-fill icon-delete" title="Delete" data-index="${i}"></i>
                   </td>
+
                   <td style='display:none;'>${vacancyId ?? 0}</td>
                   <td style='display:none;'>${industryId ?? 0}</td>
                   <td style='display:none;'>${establishmentId ?? 0}</td>
