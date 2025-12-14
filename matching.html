@@ -143,11 +143,13 @@
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Applicant Name</th>
+                  <th>First Name</th>
+                  <th>Middle Name</th>
+                  <th>Last Name</th>
                   <th>Applied Job</th>
                   <th>Industry</th>
                   <th>Establishment</th>
-                  <!-- <th>Match Score</th> -->
+                  <th>Details</th>
                   <th align="center">Status</th>
                   <th align="center">Match Points</th>
                   <!-- <th class="text-center">Actions</th> -->
@@ -249,5 +251,21 @@
         </div>
       </div>
     </div>
+
+    <div id="jobModal" class="modal hidden">
+      <div class="modal-content">
+        <span id="closeModal" class="close">&times;</span>
+
+        <h2 id="modalJobTitle"></h2>
+        <p><strong>Establishment:</strong> <span id="modalEstablishment"></span></p>
+
+        <hr />
+
+        <p><strong>Remarks:</strong></p>
+        <div id="modalRemarks" class="modal-remarks"></div>
+      </div>
+    </div>
+
+
   </body>
 </html>

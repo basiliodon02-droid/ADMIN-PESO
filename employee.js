@@ -39,14 +39,25 @@ async function renumberEmployees() {
       const row = tableBody.insertRow();
       row.innerHTML = `
         <td>${tableBody.rows.length}</td>
-        <td>${getEmployees.data[i].firstName} ${getEmployees.data[i].middleName ?? ""} ${getEmployees.data[i].lastName ?? ""} ${getEmployees.data[i].suffix ?? ""}</td>
+        <td>${getEmployees.data[i].firstName}</td>
+        <td>${getEmployees.data[i].middleName ?? ""}</td>
+        <td>${getEmployees.data[i].lastName ?? ""} </td>
+        <td>${getEmployees.data[i].suffix ?? ""}</td>
         <td>${getEmployees.data[i].email}</td>
         <td>${statusBadge(getEmployees.data[i].status)}</td>
-        <td>${new Date(getEmployees.data[i].created_at).toISOString().split("T")[0]}</td>          
-        <td class="action-icons">
-          <i class="bi bi-eye-fill icon-view" title="View"></i>
-          <i class="bi bi-pencil-square icon-edit" title="Edit"></i>
-          <i class="bi bi-trash3-fill icon-delete" title="Delete"></i>
+        <td>${new Date(getEmployees.data[i].created_at).toISOString().split("T")[0]}</td>  
+        <td style='font-size:14px;'>
+          ${getEmployees.data[i].street ? getEmployees.data[i].street + ", " : ""}
+          ${getEmployees.data[i].barangay ? getEmployees.data[i].barangay + ", " : ""}
+          ${getEmployees.data[i].city ? getEmployees.data[i].city + ", " : ""}
+          ${getEmployees.data[i].municipality ?? ""}
+        </td>        
+        <td >
+          <div class="action-icons">
+            <i class="bi bi-eye-fill icon-view" title="View"></i>
+            <i class="bi bi-pencil-square icon-edit" title="Edit"></i>
+            <i class="bi bi-trash3-fill icon-delete" title="Delete"></i>
+          </div>  
         </td>
         <td style='display:none;'>${getEmployees.data[i].user_id}</td>
         <td style='display:none;'>${getEmployees.data[i].firstName}</td>
@@ -197,13 +208,17 @@ function closeDeleteModal() {
 document.addEventListener("click", (e) => {
   if (e.target.classList.contains("icon-view")) {
     const row = e.target.closest("tr");
-    const name = row.children[1].innerText;
-    const email = row.children[2].innerText;
-    const status = row.children[3].innerText;
-    const dateRegistered = row.children[4].innerText;
+    const fName = row.children[1].textContent;
+    const mName = row.children[2].textContent;
+    const lName = row.children[3].textContent;
+    const suffix = row.children[4].textContent;
+    const fullName = `${fName} ${mName} ${lName} ${suffix}`;
+    const email = row.children[5].innerText;
+    const status = row.children[6].innerText;
+    const dateRegistered = row.children[7].innerText;
 
     viewDetails.innerHTML = `
-      <p><b>Employee Name: </b><span>${name}</span></p>
+      <p><b>Employee Name: </b><span>${fullName}</span></p>
       <p><b>Email: </b><span>${email}</span></p>
       <p><b>Status: </b><span>${status}</span></p>
       <p><b>Date Registered: </b><span>${dateRegistered}</span></p>
@@ -216,15 +231,15 @@ document.addEventListener("click", (e) => {
     const row = e.target.closest("tr");
     editModal.dataset.row = row.rowIndex;
     document.getElementById("editEmpFirst").value =
-      row.children[7].textContent; //hidden td for first name
+      row.children[11].textContent; //hidden td for first name
     document.getElementById("editEmpLast").value =
-      row.children[8].textContent; //hidden td for last name
+      row.children[12].textContent; //hidden td for last name
     document.getElementById("editEmpEmail").value =
-      row.children[2].textContent;
+      row.children[5].textContent;
     document.getElementById("editEmpStatus").value =
-      row.children[3].textContent;
-    document.getElementById("editEmpUserId").value =
       row.children[6].textContent;
+    document.getElementById("editEmpUserId").value =
+      row.children[10].textContent;
     editModal.style.display = "flex";
     editModal.setAttribute("aria-hidden", "false");
   }
@@ -232,9 +247,13 @@ document.addEventListener("click", (e) => {
   if (e.target.classList.contains("icon-delete")) {
     const row = e.target.closest("tr");
     deleteRowIndex = row.rowIndex;
-    const name = row.children[1].textContent;
-    document.getElementById("deleteEmpUserId").value = row.children[6].innerText; // also get user_id as reference for db to delete
-    deleteEmpBody.textContent = `Are you sure you want to delete "${name}"?`;
+    const fName = row.children[1].textContent;
+    const mName = row.children[2].textContent;
+    const lName = row.children[3].textContent;
+    const suffix = row.children[4].textContent;
+    const fullName = `${fName} ${mName} ${lName} ${suffix}`;
+    document.getElementById("deleteEmpUserId").value = row.children[10].innerText; // also get user_id as reference for db to delete
+    deleteEmpBody.textContent = `Are you sure you want to delete "${fullName}"?`;
     deleteOverlay.style.display = "flex";
     deleteOverlay.setAttribute("aria-hidden", "false");
   }

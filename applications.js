@@ -273,7 +273,10 @@ async function loadApplicants() {
                 "beforeend",
                 `
           <td>${index}</td>
-          <td>${results.data[i].firstName} ${results.data[i].middleName} ${results.data[i].lastName}</td>
+          <td>${results.data[i].firstName}</td>
+          <td>${results.data[i].middleName ?? ''}</td>
+          <td>${results.data[i].lastName ?? ''}</td>
+          <td>${results.data[i].suffix ?? ''}</td>
           <td>${vacancyResults.data[0].job_title}</td>
           <td>${establishmentResults.data[0].establishmentName}</td>
           <td>${results.data[i].applicationStatus}</td>

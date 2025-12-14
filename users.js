@@ -85,6 +85,7 @@ document.addEventListener('DOMContentLoaded', function () {
           <td>${getUsers.data[i].lastName}</td>
           <td>${getUsers.data[i].firstName}</td>
           <td>${getUsers.data[i].middleName ? getUsers.data[i].middleName.charAt(0).toUpperCase() + '.' : ''}</td>
+          <td>${getUsers.data[i].suffix ?? ''}</td>
           <td>${getUsers.data[i].email}</td>
           <td>${getUsers.data[i].role}</td>
           <td>${statusBadge(getUsers.data[i].status)}</td>
@@ -218,10 +219,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (iconView) {
       const lastname = row.children[1].textContent;
       const firstname = row.children[2].textContent;
-      const mi = row.children[9].textContent || "—";
-      const email = row.children[4].textContent;
-      const role = row.children[5].textContent;
-      const status = row.children[6].innerText;
+      const mi = row.children[10].textContent || "—";
+      const email = row.children[5].textContent;
+      const role = row.children[6].textContent;
+      const status = row.children[7].innerText;
 
       viewDetails.innerHTML = `
       <p><b>Lastname:</b><span>${lastname}</span></p>
@@ -240,11 +241,11 @@ document.addEventListener('DOMContentLoaded', function () {
       modalTitle.textContent = "Edit User";
       lastnameInput.value = row.children[1].textContent;
       firstnameInput.value = row.children[2].textContent;
-      miInput.value = row.children[9].textContent;
-      emailInput.value = row.children[4].textContent;
-      roleInput.value = row.children[5].textContent;
-      statusInput.value = row.children[6].innerText.trim();
-      editUserId.value = row.children[8].textContent;
+      miInput.value = row.children[10].textContent;
+      emailInput.value = row.children[5].textContent;
+      roleInput.value = row.children[6].textContent;
+      statusInput.value = row.children[7].innerText.trim();
+      editUserId.value = row.children[9].textContent;
       showLayer(userModal);
       return;
     }
@@ -253,7 +254,7 @@ document.addEventListener('DOMContentLoaded', function () {
       rowToDelete = row;
       const lname = row.children[1].textContent;
       const fname = row.children[2].textContent;
-      deleteUserId.value = row.children[8].textContent;
+      deleteUserId.value = row.children[9].textContent;
       deleteUserText.textContent = `Are you sure you want to delete "${lname}, ${fname}"?`;
       showLayer(deleteOverlay);
       return;

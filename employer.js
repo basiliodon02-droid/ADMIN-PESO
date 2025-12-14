@@ -363,11 +363,10 @@ document.addEventListener("DOMContentLoaded", function () {
         const row = tableBody.insertRow();
         row.innerHTML = `
                   <td>${tableBody.rows.length}</td>
-                  <td>
-                  ${getEmployers.data[i].firstName} ${getEmployers.data[i].middleName ?? ""
-          } ${getEmployers.data[i].lastName ?? ""} ${getEmployers.data[i].suffix ?? ""
-          }
-                  </td>
+                  <td>${getEmployers.data[i].firstName}</td>
+                  <td>${getEmployers.data[i].middleName ?? ""}</td>
+                  <td>${getEmployers.data[i].lastName ?? ""} </td>
+                  <td>${getEmployers.data[i].suffix ?? ""}</td>
                   <td>${getEmployers.data[i].email}</td>
                   <td>${statusBadge(getEmployers.data[i].status)}</td>
                   <td>${new Date(getEmployers.data[i].created_at)
@@ -382,9 +381,9 @@ document.addEventListener("DOMContentLoaded", function () {
                   </td>
                   <td>
                     <div class="action-icons">
-                    <i class="bi bi-eye-fill icon-view-emp" title="View"></i>
-                    <i class="bi bi-pencil-square icon-edit-emp" title="Edit"></i>
-                    <i class="bi bi-trash3-fill icon-delete-emp" title="Delete"></i>
+                      <i class="bi bi-eye-fill icon-view-emp" title="View"></i>
+                      <i class="bi bi-pencil-square icon-edit-emp" title="Edit"></i>
+                      <i class="bi bi-trash3-fill icon-delete-emp" title="Delete"></i>
                     </div>
                   </td>
                   <td style='display:none;'>${getEmployers.data[i].user_id}</td>
@@ -462,16 +461,20 @@ document.addEventListener("DOMContentLoaded", function () {
       const row = icon.closest("tr");
       if (!row || !row.closest("#employersTable")) return;
 
-      const fullName = row.children[1].textContent;
-      const email = row.children[2].textContent;
-      const status = row.dataset.status || row.children[3].textContent;
-      const date = row.dataset.date || row.children[4].textContent;
-      const address = row.dataset.date || row.children[5].textContent;
+      const fName = row.children[1].textContent;
+      const mName = row.children[2].textContent;
+      const lName = row.children[3].textContent;
+      const suffix = row.children[4].textContent;
+      const fullName = `${fName} ${mName} ${lName} ${suffix}`;
+      const email = row.children[5].textContent;
+      const status = row.dataset.status || row.children[6].textContent;
+      const date = row.dataset.date || row.children[7].textContent;
+      const address = row.dataset.date || row.children[8].textContent;
 
       empViewDetails.innerHTML = `
         <p><b>Employer Name:  </b><span>${fullName}</span></p>
         <p><b>Email:  </b><span>${email}</span></p>
-        <p><b>Status:  </b><span>${typeof status === "string" ? status : row.children[3].innerText
+        <p><b>Status:  </b><span>${typeof status === "string" ? status : row.children[6].innerText
         }</span></p>
         <p><b>Date Registered:  </b><span>${date}</span></p>
         <p><b>Address:  </b><span>${address}</span></p>
@@ -487,15 +490,15 @@ document.addEventListener("DOMContentLoaded", function () {
       empRowToEdit = row;
 
       document.getElementById("editEmpFirst").value =
-        row.children[8].textContent; //hidden td for first name
+        row.children[11].textContent; //hidden td for first name
       document.getElementById("editEmpLast").value =
-        row.children[9].textContent; //hidden td for last name
+        row.children[12].textContent; //hidden td for last name
       document.getElementById("editEmpEmail").value =
-        row.children[2].textContent;
+        row.children[5].textContent;
       document.getElementById("editEmpStatus").value =
-        row.children[3].textContent;
+        row.children[6].textContent;
       document.getElementById("editEmpUserId").value =
-        row.children[7].textContent;
+        row.children[10].textContent;
       editEmpModal.style.display = "flex";
       editEmpModal.setAttribute("aria-hidden", "false");
     }
@@ -505,10 +508,14 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!row || !row.closest("#employersTable")) return;
 
       empRowToDelete = row;
-      const name = row.children[1].textContent;
+      const fName = row.children[1].textContent;
+      const mName = row.children[2].textContent;
+      const lName = row.children[3].textContent;
+      const suffix = row.children[4].textContent;
+      const fullName = `${fName} ${mName} ${lName} ${suffix}`;
       document.getElementById("deleteEmpUserId").value =
-        row.children[7].innerText; // also get user_id as reference for db to delete
-      deleteEmpBody.textContent = `Are you sure you want to delete "${name}"?`;
+        row.children[9].innerText; // also get user_id as reference for db to delete
+      deleteEmpBody.textContent = `Are you sure you want to delete "${fullName}"?`;
       deleteEmpOverlay.style.display = "flex";
       deleteEmpOverlay.setAttribute("aria-hidden", "false");
     }
