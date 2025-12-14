@@ -1,55 +1,69 @@
-// ===== DASHBOARD.JS =====
-
-// ===== PROFILE MENU TOGGLE =====
-function toggleProfileMenu() {
-  const profileMenu = document.getElementById("profile-menu");
-  profileMenu.classList.toggle("show");
+// 🚨 Redirect if not logged in
+if (localStorage.getItem("isLoggedIn") === "FALSE") {
+  window.location.href = "./index.html";
 }
 
-// Close profile menu when clicking outside
-document.addEventListener("click", function (event) {
-  const profileMenu = document.getElementById("profile-menu");
-  const profileIcon = document.getElementById("profile-icon");
+document.addEventListener("DOMContentLoaded", () => {
+  
+  // ===== PROFILE DROPDOWN =====
+  const profileIcon = document.getElementById("profileIcon");
+  const profileDropdown = document.getElementById("profileDropdown");
 
-  if (!profileMenu.contains(event.target) && !profileIcon.contains(event.target)) {
-    profileMenu.classList.remove("show");
-  }
-});
+  profileIcon.addEventListener("click", (e) => {
+    e.stopPropagation(); // prevent body click
+    profileDropdown.classList.toggle("show");
+  });
 
-// ===== SIDEBAR SUBMENU TOGGLE =====
-document.querySelectorAll(".toggle-menu").forEach((toggle) => {
-  toggle.addEventListener("click", function (e) {
-    e.preventDefault();
-    const submenu = this.nextElementSibling;
-    submenu.classList.toggle("show");
-    const icon = this.querySelector("i");
-    if (submenu.classList.contains("show")) {
-      icon.style.transform = "rotate(180deg)";
-    } else {
-      icon.style.transform = "rotate(0deg)";
+  document.addEventListener("click", () => {
+    profileDropdown.classList.remove("show");
+  });
+
+  // ===== SIDEBAR SUBMENU TOGGLE =====
+  const toggleMenus = document.querySelectorAll(".toggle-menu");
+
+  toggleMenus.forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation(); 
+
+      const submenu = btn.nextElementSibling;
+
+      // Close other submenus
+      document.querySelectorAll(".submenu").forEach((menu) => {
+        if (menu !== submenu) {
+          menu.classList.remove("show");
+          menu.previousElementSibling?.classList.remove("open");
+        }
+      });
+
+      // Toggle current submenu
+      submenu.classList.toggle("show");
+      btn.classList.toggle("open");
+    });
+  });
+
+  // ===== Highlight active submenu based on URL =====
+  const currentPath = window.location.pathname.split("/").pop();
+  document.querySelectorAll(".submenu-item").forEach((link) => {
+    if (link.getAttribute("href") === currentPath) {
+      link.classList.add("active");
+      link.closest(".submenu").classList.add("show");
+      link.closest(".submenu").previousElementSibling.classList.add("open");
     }
   });
-});
 
-// ===== SYSTEM STATUS LAST UPDATE =====
-function updateSystemStatus() {
-  const lastUpdateSpan = document.getElementById("lastUpdate");
-  if (lastUpdateSpan) {
+  // ===== LIVE SYSTEM LAST UPDATE =====
+  const systemLastUpdate = document.getElementById("systemLastUpdate");
+
+  function updateSystemTime() {
     const now = new Date();
-    const formattedDate = now.toLocaleString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
-    lastUpdateSpan.textContent = formattedDate;
+    const formattedTime = now.toLocaleString(); // You can customize format
+    systemLastUpdate.textContent = `Last updated: ${formattedTime}`;
   }
-}
 
-// Initial call
-updateSystemStatus();
+  // Update immediately
+  updateSystemTime();
 
-// Optionally, update every minute
-setInterval(updateSystemStatus, 60000);
+  // Update every 1 second
+  setInterval(updateSystemTime, 1000);
+});
