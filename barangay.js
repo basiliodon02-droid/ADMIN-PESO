@@ -1,313 +1,227 @@
-if (localStorage.getItem("isLoggedIn") == "FALSE") {
-  window.location.href = "./index.html";
-}
+(() => {
+  const supabase = window.supabaseClient;
+  if (!supabase) throw new Error("Supabase client is not initialized!");
 
-function toggleProfileMenu() {
-  const profileMenu = document.getElementById("profile-menu");
-  profileMenu.classList.toggle("show");
-}
+  let addModal, editModal, viewOverlay, viewDetails, deleteOverlay;
+  let deleteRowIndex = null;
 
-const tableBody = document.getElementById("barangayTableBody");
-let deleteRowIndex = null;
-
-var addModal, editModal, viewOverlay, viewDetails, deleteOverlay;
-
-//ON WINDOW LOAD, GET BARANGAY LIST FROM DB
-window.onload = renumberBarangays();
-
-async function renumberBarangays() {
-  const getBrgyResult = await getBarangayList();
-  if (getBrgyResult.success === false) {
-    alert(getBrgyResult.message); //browser alert message
-  } else {
-    //added td for barangay_id but only hidden
-    const tbody = document.getElementById("barangayTableBody");
-    tbody.innerHTML = "";
-    for (i = 0; i < getBrgyResult.data.length; i++) {
-      tbody.insertAdjacentHTML(
-        "beforeend",
-        `
-          <tr>
-              <td>${i + 1}</td>
-              <td>${getBrgyResult.data[i].name}</td>
-              <td class="action-icons">
-                <i class="bi bi-eye-fill icon-view" title="View"></i>
-                <i class="bi bi-pencil-square icon-edit" title="Edit"></i>
-                <i class="bi bi-trash3-fill icon-delete" title="Delete"></i>
-              </td>
-              <td style='display:none;'>${getBrgyResult.data[i].barangay_id
-        }</td> 
-            </tr>
-            `
-      );
+  document.addEventListener("DOMContentLoaded", async () => {
+    // -----------------------
+    // Login check
+    // -----------------------
+    if (localStorage.getItem("isLoggedIn") === "FALSE") {
+      window.location.href = "./index.html";
     }
-  }
 
-  // const tbody = document.getElementById("barangayTableBody");
-  // if (!tbody) return;
-  // Array.from(tbody.rows).forEach((tr, i) => {
-  //   if (tr.children[0]) tr.children[0].innerText = i + 1;
-  // });
-}
+    // -----------------------
+    // DOM elements
+    // -----------------------
+    const tableBody = document.getElementById("barangayTableBody");
+    const openAddBtn = document.getElementById("openAddModalBtn");
+    const closeViewBtn = document.getElementById("closeView");
+    const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
+    const saveBarangayBtn = document.getElementById("saveBarangayBtn");
+    const updateBarangayBtn = document.getElementById("updateBarangayBtn");
+    const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+    const searchInput = document.getElementById("searchInput");
 
-document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".toggle-menu").forEach((btn) => {
-    btn.addEventListener("click", (e) => {
-      e.preventDefault();
-      const submenu = btn.nextElementSibling;
-      document.querySelectorAll(".submenu").forEach((list) => {
-        if (list !== submenu) list.classList.remove("show");
+    addModal = document.getElementById("addModal");
+    editModal = document.getElementById("editModal");
+    viewOverlay = document.getElementById("viewOverlay");
+    viewDetails = document.getElementById("viewDetails");
+    deleteOverlay = document.getElementById("deleteOverlay");
+
+    // -----------------------
+    // Sidebar submenu toggle
+    // -----------------------
+    document.querySelectorAll(".toggle-menu").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const submenu = btn.nextElementSibling;
+        document.querySelectorAll(".submenu").forEach((list) => {
+          if (list !== submenu) list.classList.remove("show");
+        });
+        submenu?.classList.toggle("show");
       });
-      submenu.classList.toggle("show");
     });
-  });
 
-  const tableBody = document.getElementById("barangayTableBody");
+    // -----------------------
+    // Initial load
+    // -----------------------
+    await renumberBarangays();
 
-  const addModalEl = document.getElementById("addModal");
-  const editModalEl = document.getElementById("editModal");
-  const viewOverlayEl = document.getElementById("viewOverlay");
-  const viewDetailsEl = document.getElementById("viewDetails");
-  const deleteOverlayEl = document.getElementById("deleteOverlay");
+    // -----------------------
+    // Add Modal
+    // -----------------------
+    openAddBtn.onclick = () => showLayer(addModal);
+    closeViewBtn.onclick = closeViewModal;
+    cancelDeleteBtn.onclick = closeDeleteModal;
 
-  addModal = addModalEl;
-  editModal = editModalEl;
-  viewOverlay = viewOverlayEl;
-  viewDetails = viewDetailsEl;
-  deleteOverlay = deleteOverlayEl;
-
-  document.getElementById("openAddModalBtn").onclick = () => {
-    addModal.style.display = "flex";
-    addModal.setAttribute("aria-hidden", "false");
-  };
-
-  document.getElementById("closeView").onclick = closeViewModal;
-  document.getElementById("cancelDeleteBtn").onclick = closeDeleteModal;
-
-  const saveBarangayBtn = document.getElementById("saveBarangayBtn");
-
-  saveBarangayBtn.onclick = async () => {
-    const name = document.getElementById("addBarangayInput").value;
-    if (name.trim() === "") {
-      return;
-    } else {
-      const addBrgyResult = await addBarangay(name);
-      if (addBrgyResult.success === false) {
-        alert(addBrgyResult.message); //browser alert message
-      } else {
-        alert(addBrgyResult.message); //browser alert message
-        renumberBarangays();
+    saveBarangayBtn.onclick = async () => {
+      const name = document.getElementById("addBarangayInput").value.trim();
+      if (!name) return;
+      const result = await addBarangay(name);
+      alert(result.message);
+      if (result.success) {
         document.getElementById("addBarangayInput").value = "";
         closeAddModal();
+        await renumberBarangays();
       }
-    }
+    };
 
-    // const rowCount = tableBody.rows.length + 1;
-    // tableBody.insertAdjacentHTML("beforeend", `
-    //   <tr>
-    //     <td>${rowCount}</td>
-    //     <td>${name}</td>
-    //     <td class="action-icons">
-    //       <i class="bi bi-eye-fill icon-view" title="View"></i>
-    //       <i class="bi bi-pencil-square icon-edit" title="Edit"></i>
-    //       <i class="bi bi-trash3-fill icon-delete" title="Delete"></i>
-    //     </td>
-    //   </tr>
-    // `);
-  };
+    // -----------------------
+    // Edit Modal
+    // -----------------------
+    updateBarangayBtn.onclick = async () => {
+      const newName = document.getElementById("editBarangayInput").value.trim();
+      const barangayId = document.getElementById("editBarangayId").value;
+      if (!newName || !barangayId) return;
+      const result = await editBarangay(barangayId, newName);
+      alert(result.message);
+      if (result.success) {
+        document.getElementById("editBarangayInput").value = "";
+        closeEditModal();
+        await renumberBarangays();
+      }
+    };
 
-  document.getElementById("updateBarangayBtn").onclick = async () => {
-    // const row = tableBody.rows[editModal.dataset.row - 1];
-    // row.children[1].innerText = document.getElementById("editBarangayInput").value;
-    // closeEditModal();
+    // -----------------------
+    // Delete Barangay
+    // -----------------------
+    confirmDeleteBtn.onclick = async () => {
+      const barangayId = document.getElementById("deleteBarangayId").value;
+      if (!barangayId) return;
+      const result = await deleteBarangay(barangayId);
+      alert(result.message);
+      if (result.success) {
+        document.getElementById("deleteBarangayId").value = "";
+        closeDeleteModal();
+        await renumberBarangays();
+      }
+    };
 
-    const newBarangayName = document.getElementById("editBarangayInput").value;
-    const selectedBarangayId = document.getElementById("editBarangayId").value;
+    // -----------------------
+    // Table row click (View/Edit/Delete)
+    // -----------------------
+    document.addEventListener("click", (e) => {
+      const row = e.target.closest("tr");
+      if (!row) return;
 
-    const editBrgyResult = await editBarangay(
-      selectedBarangayId,
-      newBarangayName
-    );
-    if (editBrgyResult.success === false) {
-      alert(editBrgyResult.message); //browser alert message
-    } else {
-      alert(editBrgyResult.message); //browser alert message
-      document.getElementById("editBarangayInput").value = "";
-      renumberBarangays();
-      closeEditModal();
-    }
-  };
+      if (e.target.classList.contains("icon-view")) {
+        viewDetails.innerHTML = `<p><b>Barangay Name:</b><span>${row.children[1].innerText}</span></p>`;
+        showLayer(viewOverlay);
+      }
 
-  document.getElementById("confirmDeleteBtn").onclick = async () => {
-    // if (deleteRowIndex !== null) {
-    //   tableBody.deleteRow(deleteRowIndex - 1);
-    //   Array.from(tableBody.rows).forEach((tr, i) => tr.children[0].innerText = i + 1);
-    // }
+      if (e.target.classList.contains("icon-edit")) {
+        editModal.dataset.row = row.rowIndex;
+        document.getElementById("editBarangayInput").value = row.children[1].innerText;
+        document.getElementById("editBarangayId").value = row.children[3].innerText;
+        showLayer(editModal);
+      }
 
-    // renumberBarangays();
-    // closeDeleteModal();
+      if (e.target.classList.contains("icon-delete")) {
+        deleteRowIndex = row.rowIndex;
+        document.getElementById("deleteBarangayId").value = row.children[3].innerText;
+        showLayer(deleteOverlay);
+      }
+    });
 
-    const selectedBarangayId =
-      document.getElementById("deleteBarangayId").value;
-    const deleteBrgyResult = await deleteBarangay(selectedBarangayId);
-    if (deleteBrgyResult.success === false) {
-      alert(deleteBrgyResult.message); //browser alert message
-    } else {
-      alert(deleteBrgyResult.message); //browser alert message
-      document.getElementById("deleteBarangayId").value = "";
-      renumberBarangays();
-      closeDeleteModal();
-    }
-  };
+    // -----------------------
+    // Search filter
+    // -----------------------
+    searchInput.addEventListener("keyup", (e) => {
+      const q = e.target.value.toLowerCase();
+      Array.from(tableBody.rows).forEach((row) => {
+        row.style.display = row.innerText.toLowerCase().includes(q) ? "" : "none";
+      });
+    });
 
-  document.getElementById("searchInput").addEventListener("keyup", (e) => {
-    const q = e.target.value.toLowerCase();
-    Array.from(tableBody.rows).forEach((row) => {
-      row.style.display = row.innerText.toLowerCase().includes(q) ? "" : "none";
+    // -----------------------
+    // Close modals by clicking outside
+    // -----------------------
+    window.addEventListener("click", (e) => {
+      if (e.target === viewOverlay) closeViewModal();
+      if (e.target === deleteOverlay) closeDeleteModal();
+      if (e.target === addModal) closeAddModal();
+      if (e.target === editModal) closeEditModal();
     });
   });
-});
 
-function closeAddModal() {
-  addModal.style.display = "none";
-  addModal.setAttribute("aria-hidden", "true");
-}
+  // -----------------------
+  // Utility functions
+  // -----------------------
+  const showLayer = (el) => {
+    el.style.display = "flex";
+    el.setAttribute("aria-hidden", "false");
+  };
+  const closeAddModal = () => { addModal.style.display = "none"; addModal.setAttribute("aria-hidden", "true"); };
+  const closeEditModal = () => { editModal.style.display = "none"; editModal.setAttribute("aria-hidden", "true"); };
+  const closeViewModal = () => { viewOverlay.style.display = "none"; viewOverlay.setAttribute("aria-hidden", "true"); };
+  const closeDeleteModal = () => { deleteOverlay.style.display = "none"; deleteOverlay.setAttribute("aria-hidden", "true"); deleteRowIndex = null; };
 
-function closeEditModal() {
-  editModal.style.display = "none";
-  editModal.setAttribute("aria-hidden", "true");
-}
-
-function closeViewModal() {
-  viewOverlay.style.display = "none";
-  viewOverlay.setAttribute("aria-hidden", "true");
-}
-
-function closeDeleteModal() {
-  deleteOverlay.style.display = "none";
-  deleteOverlay.setAttribute("aria-hidden", "true");
-  deleteRowIndex = null;
-}
-
-document.addEventListener("click", (e) => {
-  if (e.target.classList.contains("icon-view")) {
-    const row = e.target.closest("tr");
-    const name = row.children[1].innerText;
-
-    viewDetails.innerHTML = `
-      <p><b>Barangay Name:</b><span>${name}</span></p>
-    `;
-    viewOverlay.style.display = "flex";
-    viewOverlay.setAttribute("aria-hidden", "false");
+  // -----------------------
+  // Load barangays
+  // -----------------------
+  async function renumberBarangays() {
+    const result = await getBarangayList();
+    if (!result.success) return alert(result.message);
+    const tbody = document.getElementById("barangayTableBody");
+    tbody.innerHTML = "";
+    result.data.forEach((b, i) => {
+      tbody.insertAdjacentHTML("beforeend", `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${b.name}</td>
+          <td class="action-icons">
+            <i class="bi bi-eye-fill icon-view" title="View"></i>
+            <i class="bi bi-pencil-square icon-edit" title="Edit"></i>
+            <i class="bi bi-trash3-fill icon-delete" title="Delete"></i>
+          </td>
+          <td style='display:none;'>${b.barangay_id}</td>
+        </tr>
+      `);
+    });
   }
 
-  if (e.target.classList.contains("icon-edit")) {
-    const row = e.target.closest("tr");
-    editModal.dataset.row = row.rowIndex;
-    document.getElementById("editBarangayInput").value =
-      row.children[1].innerText;
-    document.getElementById("editBarangayId").value = row.children[3].innerText; // also get barangay_id as reference for db update
-    editModal.style.display = "flex";
-    editModal.setAttribute("aria-hidden", "false");
+  // -----------------------
+  // Supabase CRUD functions
+  // -----------------------
+  async function getBarangayList() {
+    try {
+      const { data, error } = await supabase.from("Barangay").select("*").order("barangay_id", { ascending: true });
+      if (error) throw error;
+      return { success: true, data };
+    } catch (err) {
+      return { success: false, message: err.message || "Error", data: [] };
+    }
   }
 
-  if (e.target.classList.contains("icon-delete")) {
-    const row = e.target.closest("tr");
-    deleteRowIndex = row.rowIndex;
-    document.getElementById("deleteBarangayId").value =
-      row.children[3].innerText; // also get barangay_id as reference for db delete
-    deleteOverlay.style.display = "flex";
-    deleteOverlay.setAttribute("aria-hidden", "false");
+  async function addBarangay(name) {
+    try {
+      await supabase.from("Barangay").insert([{ name, createdAt: new Date().toISOString() }]);
+      return { success: true, message: "Barangay Added!" };
+    } catch (err) {
+      return { success: false, message: err.message || "Error" };
+    }
   }
-});
 
-window.addEventListener("click", (e) => {
-  if (e.target === viewOverlay) closeViewModal();
-  if (e.target === deleteOverlay) closeDeleteModal();
-  if (e.target === addModal) closeAddModal();
-  if (e.target === editModal) closeEditModal();
-});
-
-//GET LIST OF BRGY FUNCTION
-async function getBarangayList() {
-  const { data, error } = await supabase
-    .from("Barangay")
-    .select("*")
-    .order("barangay_id", { ascending: true });
-
-  if (error) {
-    return {
-      message: error.message,
-      success: false,
-      data: {},
-    };
-  } else {
-    return {
-      message: "got it",
-      success: true,
-      data: data,
-    };
+  async function editBarangay(id, name) {
+    try {
+      await supabase.from("Barangay").update({ name, modifiedAt: new Date().toISOString() }).eq("barangay_id", id);
+      return { success: true, message: "Barangay Updated!" };
+    } catch (err) {
+      return { success: false, message: err.message || "Error" };
+    }
   }
-}
 
-//ADD BRGY FUNCTION
-async function addBarangay(barangayName) {
-  const { data, error } = await supabase
-    .from("Barangay")
-    .insert([{ name: barangayName, createdAt: new Date().toLocaleString() }]);
-
-  if (error) {
-    return {
-      message: error.message,
-      success: false,
-    };
-  } else {
-    return {
-      message: "Barangay Added!",
-      success: true,
-    };
+  async function deleteBarangay(id) {
+    try {
+      const { data, error } = await supabase.from("Barangay").delete().eq("barangay_id", id).select();
+      if (error || !data.length) throw error || new Error("Cannot delete barangay due to foreign key constraint");
+      return { success: true, message: "Barangay Deleted!" };
+    } catch (err) {
+      return { success: false, message: err.message || "Error" };
+    }
   }
-}
 
-//EDIT BRGY FUNCTION
-async function editBarangay(barangayId, barangayName) {
-  const { error } = await supabase
-    .from("Barangay")
-    .update({ name: barangayName, modifiedAt: new Date().toLocaleString() })
-    .eq("barangay_id", barangayId) // your condition
-    .select();
-
-  if (error) {
-    return {
-      message: error.message,
-      success: false,
-    };
-  } else {
-    return {
-      message: `Barangay Updated!`,
-      success: true,
-    };
-  }
-}
-
-//DELETE BRGY FUNCTION
-async function deleteBarangay(barangayId) {
-  const { data, error } = await supabase
-    .from("Barangay")
-    .delete()
-    .eq("barangay_id", barangayId)
-    .select() // optional: returns deleted row
-    .throwOnError();
-
-  if (error || data.length === 0) {
-    return {
-      message: error?.message || "Foreign key prevents deletion.",
-      success: false,
-    };
-  } else {
-    return {
-      message: `Barangay Deleted!`,
-      success: true,
-    };
-  }
-}
+})();

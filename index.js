@@ -36,6 +36,8 @@ document
       return;
     }
 
+    const supabase = window.supabaseClient; // safe reference
+
     const { data, error } = await supabase
       .from("Users")
       .select("*")
