@@ -12,18 +12,14 @@
 
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script src="supabaseClient.js"></script>
-  <script src="industry.js"></script>
-
+  <script src="industry.js" defer></script>
 </head>
 
 <body class="dashboard-body">
-
   <aside class="sidebar">
     <h2 class="logo">SKILlocal</h2>
-
     <nav class="navbar flex-column">
       <ul class="navbar-nav w-100">
-
         <li class="nav-item"><a href="dashboard.html" class="nav-link">🗂️ Dashboard</a></li>
 
         <li class="nav-item">
@@ -57,7 +53,6 @@
         <li class="nav-item"><a href="vacancies.html" class="nav-link">💼 Job Vacancies</a></li>
         <li class="nav-item"><a href="applications.html" class="nav-link">📄 Applications</a></li>
         <li class="nav-item"><a href="reports.html" class="nav-link">📊 Reports</a></li>
-
       </ul>
     </nav>
   </aside>
@@ -68,7 +63,7 @@
       <p>Manage industries used across General Santos City.</p>
 
       <div class="profile-container">
-        <img src="image.jpg" alt="Profile" id="profile-icon" onclick="toggleProfileMenu()">
+        <img src="image.jpg" alt="Profile" id="profile-icon">
         <div id="profile-menu" class="profile-menu">
           <ul>
             <li><a href="profile.html">👤 Profile</a></li>
@@ -97,22 +92,12 @@
             <th class="th-actions text-center">Actions</th>
           </tr>
         </thead>
-        <tbody id="industryTableBody">
-          <!-- <tr>
-            <td>1</td>
-            <td>Construction</td>
-            <td>Building and infrastructure projects</td>
-            <td class="action-icons">
-              <i class="bi bi-eye-fill icon-view" title="View"></i>
-              <i class="bi bi-pencil-square icon-edit" title="Edit"></i>
-              <i class="bi bi-trash3-fill icon-delete" title="Delete"></i>
-            </td>
-          </tr> -->
-        </tbody>
+        <tbody id="industryTableBody"></tbody>
       </table>
     </div>
   </main>
 
+  <!-- MODALS -->
   <div class="modal-overlay" id="addIndustryModal" aria-hidden="true">
     <div class="modal-box">
       <h3>Add Industry</h3>
@@ -129,7 +114,7 @@
     <div class="modal-box">
       <h3>Edit Industry</h3>
       <input type="text" id="editIndustryName" placeholder="Industry Name">
-      <input type="hidden" id="editIndustryId" placeholder="Industry Id"> 
+      <input type="hidden" id="editIndustryId">
       <textarea id="editIndustryDesc" rows="5" placeholder="Description"></textarea>
       <div class="modal-actions">
         <button class="btn-save" id="updateIndustryBtn">Update</button>
@@ -151,7 +136,7 @@
   <div class="skl-overlay" id="deleteOverlay" aria-hidden="true">
     <div class="skl-modal" role="dialog" aria-modal="true" aria-labelledby="deleteIndustryTitle">
       <h2 id="deleteIndustryTitle">⚠️ Delete Industry</h2>
-      <input type="hidden" id="deleteIndustryId" placeholder="Industry Id">
+      <input type="hidden" id="deleteIndustryId">
       <p id="deleteIndustryText"></p>
       <div class="modal-actions">
         <button type="button" class="btn-cancel" id="cancelDeleteBtn">Cancel</button>
