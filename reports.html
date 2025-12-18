@@ -1,193 +1,357 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SKILLocal Admin - Reports</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SKILLocal Admin - Reports</title>
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="reports.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="reports.css" />
 
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<script src="supabaseClient.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="supabaseClient.js"></script>
+  </head>
 
+  <body class="dashboard-body">
+    <aside class="sidebar">
+      <h2 class="logo">SKILlocal</h2>
 
-</head>
+      <nav class="navbar flex-column">
+        <ul class="navbar-nav w-100">
+          <li class="nav-item">
+            <a href="dashboard.html" class="nav-link">🗂️ Dashboard</a>
+          </li>
 
-<body class="dashboard-body">
+          <li class="nav-item">
+            <a href="#" class="nav-link toggle-menu">
+              ⚙️ Master Data
+              <i class="fa-solid fa-chevron-down ms-auto"></i>
+            </a>
+            <ul class="submenu list-unstyled ms-3">
+              <li>
+                <a class="submenu-item" href="barangay.html">🏘 Barangay</a>
+              </li>
+              <li>
+                <a class="submenu-item" href="employer.html">🏢 Employer</a>
+              </li>
+              <li>
+                <a class="submenu-item" href="employee.html">👨‍💼 Employee</a>
+              </li>
+              <li>
+                <a class="submenu-item" href="industry.html">🏭 Industry</a>
+              </li>
+              <li>
+                <a class="submenu-item" href="skilledjob.html"
+                  >🧑‍🔧 Skilled Job</a
+                >
+              </li>
+              <li><a class="submenu-item" href="skills.html">🧰 Skills</a></li>
+            </ul>
+          </li>
 
-  <aside class="sidebar">
-    <h2 class="logo">SKILlocal</h2>
+          <li class="nav-item">
+            <a href="#" class="nav-link toggle-menu">
+              🧩 Data Assignment
+              <i class="fa-solid fa-chevron-down ms-auto"></i>
+            </a>
+            <ul class="submenu list-unstyled ms-3">
+              <li>
+                <a class="submenu-item" href="industryass.html"
+                  >🏭 Industry Job Assignment</a
+                >
+              </li>
+              <li>
+                <a class="submenu-item" href="jobskillsass.html"
+                  >🧰 Job Skills Assignment</a
+                >
+              </li>
+            </ul>
+          </li>
 
-    <nav class="navbar flex-column">
-      <ul class="navbar-nav w-100">
+          <li class="nav-item">
+            <a href="users.html" class="nav-link">👥 Users</a>
+          </li>
+          <li class="nav-item">
+            <a href="matching.html" class="nav-link">🔍 Job Matching</a>
+          </li>
+          <li class="nav-item">
+            <a href="vacancies.html" class="nav-link">💼 Job Vacancies</a>
+          </li>
+          <li class="nav-item">
+            <a href="applications.html" class="nav-link">📄 Applications</a>
+          </li>
+          <li class="nav-item">
+            <a href="reports.html" class="nav-link active">📊 Reports</a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
 
-        <li class="nav-item"><a href="dashboard.html" class="nav-link">🗂️ Dashboard</a></li>
-
-        <li class="nav-item">
-          <a href="#" class="nav-link toggle-menu">
-            ⚙️ Master Data
-            <i class="fa-solid fa-chevron-down ms-auto"></i>
-          </a>
-          <ul class="submenu list-unstyled ms-3">
-            <li><a class="submenu-item" href="barangay.html">🏘 Barangay</a></li>
-            <li><a class="submenu-item" href="employer.html">🏢 Employer</a></li>
-            <li><a class="submenu-item" href="employee.html">👨‍💼 Employee</a></li>
-            <li><a class="submenu-item" href="industry.html">🏭 Industry</a></li>
-            <li><a class="submenu-item" href="skilledjob.html">🧑‍🔧 Skilled Job</a></li>
-            <li><a class="submenu-item" href="skills.html">🧰 Skills</a></li>
-          </ul>
-        </li>
-
-        <li class="nav-item">
-          <a href="#" class="nav-link toggle-menu">
-            🧩 Data Assignment
-            <i class="fa-solid fa-chevron-down ms-auto"></i>
-          </a>
-          <ul class="submenu list-unstyled ms-3">
-            <li><a class="submenu-item" href="industryass.html">🏭 Industry Job Assignment</a></li>
-            <li><a class="submenu-item" href="jobskillsass.html">🧰 Job Skills Assignment</a></li>
-          </ul>
-        </li>
-
-        <li class="nav-item"><a href="users.html" class="nav-link">👥 Users</a></li>
-        <li class="nav-item"><a href="matching.html" class="nav-link">🔍 Job Matching</a></li>
-        <li class="nav-item"><a href="vacancies.html" class="nav-link">💼 Job Vacancies</a></li>
-        <li class="nav-item"><a href="applications.html" class="nav-link">📄 Applications</a></li>
-        <li class="nav-item"><a href="reports.html" class="nav-link active">📊 Reports</a></li>
-      </ul>
-    </nav>
-  </aside>
-
-  <main class="main-content">
-    <header class="header">
-      <div>
-        <h1>📈Administrative Reports</h1>
-         <p>Centralized monitoring of operational data and official records</p>
-      </div>
- 
- 
-      <div class="profile-container">
-        <img src="image.jpg" alt="Profile" id="profile-icon" onclick="toggleProfileMenu()">
-        <div id="profile-menu" class="profile-menu">
-          <ul>
-            <li><a href="profile.html">👤 Profile</a></li>
-           <li id="logoutLink"><a href="#"><i class="fa fa-sign-out-alt"></i> Logout</a></li>
-          </ul>
+    <main class="main-content">
+      <header class="header">
+        <div>
+          <h1>📈Administrative Reports</h1>
+          <p>Centralized monitoring of operational data and official records</p>
         </div>
-      </div>
-    </header>
 
-    <label>
-      From:
-      <input type="date" id="dateFrom">
-    </label>
-
-    <label>
-      To:
-      <input type="date" id="dateTo">
-    </label>
-
-    <section class="cards">
-      <div class="card">
-        <h3>👷 Workers</h3>
-        <div id='workerLoader' class="loader"></div>
-        <div id='workerStats' style="display:flex; flex-direction: row; justify-content: space-around; align-items: center; gap:10px;">
-          <div>
-            <label>Active:</label><p id="workers">0</p>
-          </div>
-          <div>
-            <label>Inactive:</label><p id="workers-inactive">0</p>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <h3>👨‍💼 Employers</h3>
-        <div id='employerLoader' class="loader"></div>
-        <div id='employerStats' style="display:flex; flex-direction: row; justify-content: space-around; align-items: center; gap:10px;">
-          <div>
-            <label>Active:</label><p id="employers">0</p>
-          </div>
-          <div>
-            <label>Inactive:</label><p id="employers-inactive">0</p>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <h3>💼 Vacancies</h3>
-        <div id='vacanciesLoader' class="loader"></div>
-        <div id='vacanciesStats' style="display:flex; flex-direction: row; justify-content: space-around; align-items: center; gap:10px;">
-          <div>
-            <label>Posted:</label><p id="postedVacancies">0</p>
-          </div>
-          <div>
-            <label>Completed:</label><p id="closedVacancies">0</p>
+        <div class="profile-container">
+          <img
+            src="image.jpg"
+            alt="Profile"
+            id="profile-icon"
+            onclick="toggleProfileMenu()"
+          />
+          <div id="profile-menu" class="profile-menu">
+            <ul>
+              <li><a href="profile.html">👤 Profile</a></li>
+              <li id="logoutLink">
+                <a href="#"><i class="fa fa-sign-out-alt"></i> Logout</a>
+              </li>
+            </ul>
           </div>
         </div>
-      </div>
-      <div class="card">
-        <h3>📝 Applications</h3>
-        <div id='applicationsLoader' class="loader"></div>
-        <div id='applicationsStats' style="display:flex; flex-direction: row; justify-content: space-around; align-items: center; gap:10px;">
-          <div>
-            <label>Submitted:</label><p id="applicationsSubmitted">0</p>
-          </div>
-          <div>
-            <label>Hired:</label><p id="applicationsHired">0</p>
-          </div>
-        </div>
-      </div>
+      </header>
 
-    </section>
-    <hr><br>
-    <section class="summary-grid">
-      <div class="summary-card">
-        <div style="height: 100px;gap: 10px; display:flex; flex-direction: row; justify-content: center; align-items: center;">
-          <h3>💼</h3>
-          <h3 style="text-align: left;">Active Vacancies</h3>
-        </div>
-        
-        <div id='activeVacanciesLoader' class="loader"></div>
-        <div id='activeVacanciesStats' style="display:flex; flex-direction: row; justify-content: space-around; align-items: center; gap:10px;">
-          <p id="vacancies">0</p>
-        </div>
-      </div>
-      <div class="summary-card">
-        <div style="height: 100px;gap: 10px; display:flex; flex-direction: row; justify-content: start; align-items: center;">
-          <h3>🏢</h3>
-          <h3 style="text-align: left;">Active Establishments</h3>
-        </div>
-        <div id='activeEstablishmentsLoader' class="loader"></div>
-        <div id='activeEstablishmentsStats' style="display:flex; flex-direction: row; justify-content: space-around; align-items: center; gap:10px;">
-          <p id="establishments">0</p>
-        </div>
-      </div>
-      <div class="summary-card">
-        <div style="height: 100px;gap: 10px; display:flex; flex-direction: row; justify-content: start; align-items: center;">
-          <h3>📄</h3>
-          <h3 style="text-align: left;">Active Applications</h3>
-        </div>
-        <div id='activeApplicationsLoader' class="loader"></div>
-        <div id='activeApplicationsStats' style="display:flex; flex-direction: row; justify-content: space-around; align-items: center; gap:10px;">
-          <p id="applicants">0</p>
-        </div>
-      </div>
-      <div class="summary-card">
-        <div style="height: 100px;gap: 10px; display:flex; flex-direction: row; justify-content: start; align-items: center;">
-          <h3>🔔</h3>
-          <h3 style="text-align: left;">Pending User Verifications</h3>
-        </div>
-        <div id='pendingUsersLoader' class="loader"></div>
-        <div id='pendingUsersStats' style="display:flex; flex-direction: row; justify-content: space-around; align-items: center; gap:10px;">
-          <p id="pendingVerifications">0</p>
-        </div>
-      </div>
-      <!-- <div class="summary-card"><h3>⚙️ System Status</h3><p>✅ Online</p></div> -->
-    </section>
+      <label>
+        From:
+        <input type="date" id="dateFrom" />
+      </label>
 
-  </main>
-</body>
+      <label>
+        To:
+        <input type="date" id="dateTo" />
+      </label>
+
+      <section class="cards">
+        <div class="card" onclick="window.location.href='employee.html'">
+          <h3>👷 Workers</h3>
+          <div id="workerLoader" class="loader"></div>
+          <div
+            id="workerStats"
+            style="
+              display: flex;
+              flex-direction: row;
+              justify-content: space-around;
+              align-items: center;
+              gap: 10px;
+            "
+          >
+            <div>
+              <label>Active:</label>
+              <p id="workers">0</p>
+            </div>
+            <div>
+              <label>Inactive:</label>
+              <p id="workers-inactive">0</p>
+            </div>
+          </div>
+        </div>
+        <div class="card" onclick="window.location.href='employer.html'">
+          <h3>👨‍💼 Employers</h3>
+          <div id="employerLoader" class="loader"></div>
+          <div
+            id="employerStats"
+            style="
+              display: flex;
+              flex-direction: row;
+              justify-content: space-around;
+              align-items: center;
+              gap: 10px;
+            "
+          >
+            <div>
+              <label>Active:</label>
+              <p id="employers">0</p>
+            </div>
+            <div>
+              <label>Inactive:</label>
+              <p id="employers-inactive">0</p>
+            </div>
+          </div>
+        </div>
+        <div class="card" onclick="window.location.href='vacancies.html'">
+          <h3>💼 Vacancies</h3>
+          <div id="vacanciesLoader" class="loader"></div>
+          <div
+            id="vacanciesStats"
+            style="
+              display: flex;
+              flex-direction: row;
+              justify-content: space-around;
+              align-items: center;
+              gap: 10px;
+            "
+          >
+            <div>
+              <label>Posted:</label>
+              <p id="postedVacancies">0</p>
+            </div>
+            <div>
+              <label>Completed:</label>
+              <p id="closedVacancies">0</p>
+            </div>
+          </div>
+        </div>
+        <div class="card" onclick="window.location.href='applications.html'">
+          <h3>📝 Applications</h3>
+          <div id="applicationsLoader" class="loader"></div>
+          <div
+            id="applicationsStats"
+            style="
+              display: flex;
+              flex-direction: row;
+              justify-content: space-around;
+              align-items: center;
+              gap: 10px;
+            "
+          >
+            <div>
+              <label>Submitted:</label>
+              <p id="applicationsSubmitted">0</p>
+            </div>
+            <div>
+              <label>Hired:</label>
+              <p id="applicationsHired">0</p>
+            </div>
+          </div>
+        </div>
+      </section>
+      <hr />
+      <br />
+      <section class="summary-grid">
+        <div
+          class="summary-card"
+          onclick="window.location.href='vacancies.html'"
+        >
+          <div
+            style="
+              height: 100px;
+              gap: 10px;
+              display: flex;
+              flex-direction: row;
+              justify-content: center;
+              align-items: center;
+            "
+          >
+            <h3>💼</h3>
+            <h3 style="text-align: left">Active Vacancies</h3>
+          </div>
+
+          <div id="activeVacanciesLoader" class="loader"></div>
+          <div
+            id="activeVacanciesStats"
+            style="
+              display: flex;
+              flex-direction: row;
+              justify-content: space-around;
+              align-items: center;
+              gap: 10px;
+            "
+          >
+            <p id="vacancies">0</p>
+          </div>
+        </div>
+        <div
+          class="summary-card"
+          onclick="window.location.href='employer.html'"
+        >
+          <div
+            style="
+              height: 100px;
+              gap: 10px;
+              display: flex;
+              flex-direction: row;
+              justify-content: start;
+              align-items: center;
+            "
+          >
+            <h3>🏢</h3>
+            <h3 style="text-align: left">Active Establishments</h3>
+          </div>
+          <div id="activeEstablishmentsLoader" class="loader"></div>
+          <div
+            id="activeEstablishmentsStats"
+            style="
+              display: flex;
+              flex-direction: row;
+              justify-content: space-around;
+              align-items: center;
+              gap: 10px;
+            "
+          >
+            <p id="establishments">0</p>
+          </div>
+        </div>
+        <div
+          class="summary-card"
+          onclick="window.location.href='applications.html'"
+        >
+          <div
+            style="
+              height: 100px;
+              gap: 10px;
+              display: flex;
+              flex-direction: row;
+              justify-content: start;
+              align-items: center;
+            "
+          >
+            <h3>📄</h3>
+            <h3 style="text-align: left">Active Applications</h3>
+          </div>
+          <div id="activeApplicationsLoader" class="loader"></div>
+          <div
+            id="activeApplicationsStats"
+            style="
+              display: flex;
+              flex-direction: row;
+              justify-content: space-around;
+              align-items: center;
+              gap: 10px;
+            "
+          >
+            <p id="applicants">0</p>
+          </div>
+        </div>
+        <div class="summary-card" onclick="window.location.href='users.html'">
+          <div
+            style="
+              height: 100px;
+              gap: 10px;
+              display: flex;
+              flex-direction: row;
+              justify-content: start;
+              align-items: center;
+            "
+          >
+            <h3>🔔</h3>
+            <h3 style="text-align: left">Pending User Verifications</h3>
+          </div>
+          <div id="pendingUsersLoader" class="loader"></div>
+          <div
+            id="pendingUsersStats"
+            style="
+              display: flex;
+              flex-direction: row;
+              justify-content: space-around;
+              align-items: center;
+              gap: 10px;
+            "
+          >
+            <p id="pendingVerifications">0</p>
+          </div>
+        </div>
+        <!-- <div class="summary-card"><h3>⚙️ System Status</h3><p>✅ Online</p></div> -->
+      </section>
+    </main>
+  </body>
 </html>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="reports.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="reports.js"></script>
