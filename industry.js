@@ -2,27 +2,9 @@
   const supabase = window.supabaseClient;
   if (!supabase) throw new Error("Supabase client is not initialized!");
 
-  // ADDED ↓ run everything after DOM is ready
-  document.addEventListener("DOMContentLoaded", function () {
-    // ADDED ↑
-
-    if (localStorage.getItem("isLoggedIn") == "FALSE") {
+  document.addEventListener("DOMContentLoaded", async () => {
+    if (localStorage.getItem("isLoggedIn") === "FALSE") {
       window.location.href = "./index.html";
-    }
-    document.querySelectorAll(".toggle-menu").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.preventDefault();
-        const submenu = btn.nextElementSibling;
-        document.querySelectorAll(".submenu").forEach((list) => {
-          if (list !== submenu) list.classList.remove("show");
-        });
-        submenu.classList.toggle("show");
-      });
-    });
-
-    function toggleProfileMenu() {
-      const profileMenu = document.getElementById("profile-menu");
-      profileMenu.classList.toggle("show");
     }
 
     const qs = (s, d = document) => d.querySelector(s);
@@ -34,7 +16,41 @@
     const viewDetails = qs("#viewDetails");
     const deleteOverlay = qs("#deleteOverlay");
     const tableBody = qs("#industryTableBody");
+    const profileMenu = qs("#profile-menu");
+    const profileIcon = qs("#profile-icon");
 
+    let rowToEdit = null;
+    let rowToDelete = null;
+
+    // --------------------------
+    // PROFILE MENU
+    // --------------------------
+    profileIcon.addEventListener("click", () => {
+      profileMenu.classList.toggle("show");
+    });
+    window.addEventListener("click", (e) => {
+      if (!profileIcon.contains(e.target) && !profileMenu.contains(e.target)) {
+        profileMenu.classList.remove("show");
+      }
+    });
+
+    // --------------------------
+    // SIDEBAR TOGGLE MENUS
+    // --------------------------
+    qsa(".toggle-menu").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const submenu = btn.nextElementSibling;
+        qsa(".submenu").forEach((list) => {
+          if (list !== submenu) list.classList.remove("show");
+        });
+        submenu.classList.toggle("show");
+      });
+    });
+
+    // --------------------------
+    // MODAL HANDLING
+    // --------------------------
     function show(el) {
       el.style.display = "flex";
       el.setAttribute("aria-hidden", "false");
@@ -44,69 +60,35 @@
       el.setAttribute("aria-hidden", "true");
     }
 
-    qs("#openAddModalBtn").onclick = () => show(addModal);
-
+    qs("#openAddModalBtn").addEventListener("click", () => show(addModal));
     qsa(".btn-cancel[data-close]").forEach((btn) => {
       btn.addEventListener("click", () => {
-        const targetSelector = btn.getAttribute("data-close");
-        const target = qs(targetSelector);
+        const target = qs(btn.getAttribute("data-close"));
         if (target) hide(target);
       });
     });
 
-    qs("#saveIndustryBtn").onclick = async () => {
-      // const name = qs("#addIndustryName").value.trim();
-      //   const desc = qs("#addIndustryDesc").value.trim();
-      //   if(!name){
-      //     qs("#addIndustryName").focus();
-      //     return;
-      //   }
-      //   addRow({ name, desc });
-      //   qs("#addIndustryName").value = "";
-      //   qs("#addIndustryDesc").value = "";
-      //   hide(addModal);
-      // };
-
-      //   async function addRow({name, desc}) {
-      //   const rowCount = tableBody.querySelectorAll("tr").length + 1;
-      //   const tr = document.createElement("tr");
-      //   tr.innerHTML = `
-      //     <td>${rowCount}</td>
-      //     <td>${escapeHtml(name)}</td>
-      //     <td>${escapeHtml(desc)}</td>
-      //     <td class="action-icons">
-      //       <i class="bi bi-eye-fill icon-view" title="View"></i>
-      //       <i class="bi bi-pencil-square icon-edit" title="Edit"></i>
-      //       <i class="bi bi-trash3-fill icon-delete" title="Delete"></i>
-      //     </td>
-      //   `;
-      //   tableBody.appendChild(tr);
-      //   // ADDED ↓ keep numbering consistent even after mixed add/delete
-      //   renumberRows();
-      //   // ADDED ↑
-
+    // --------------------------
+    // ADD INDUSTRY
+    // --------------------------
+    qs("#saveIndustryBtn").addEventListener("click", async () => {
       const name = qs("#addIndustryName").value.trim();
       const desc = qs("#addIndustryDesc").value.trim();
-      if (!name) {
-        qs("#addIndustryName").focus();
-        return;
-      }
+      if (!name) return qs("#addIndustryName").focus();
 
       const result = await addIndustry(name, desc);
-      if (result.success === false) {
-        alert(result.message); //browser alert message
-      } else {
-        alert(result.message); //browser alert message
-        renumberRows(); //re fetch all industry and rebuild table
+      alert(result.message);
+      if (result.success) {
         qs("#addIndustryName").value = "";
         qs("#addIndustryDesc").value = "";
         hide(addModal);
+        await renumberRows();
       }
-    };
+    });
 
-    let rowToEdit = null;
-    let rowToDelete = null;
-
+    // --------------------------
+    // TABLE ACTIONS (VIEW, EDIT, DELETE)
+    // --------------------------
     document.addEventListener("click", (e) => {
       const iconView = e.target.closest(".icon-view");
       const iconEdit = e.target.closest(".icon-edit");
@@ -114,241 +96,137 @@
 
       if (iconView) {
         const row = iconView.closest("tr");
-        const name = row.children[1].innerText;
-        const desc = row.children[2].innerText || "—";
-
         viewDetails.innerHTML = `
-      <p><b>Industry Name:</b><span>${name}</span></p>
-      <p><b>Description:</b><span>${desc}</span></p>
-    `;
+          <p><b>Industry Name:</b> <span>${row.children[1].innerText}</span></p>
+          <p><b>Description:</b> <span>${row.children[2].innerText || "—"}</span></p>
+        `;
         show(viewOverlay);
       }
 
       if (iconEdit) {
         const row = iconEdit.closest("tr");
         rowToEdit = row;
-
         qs("#editIndustryName").value = row.children[1].innerText;
         qs("#editIndustryDesc").value = row.children[2].innerText;
-        qs("#editIndustryId").value = row.children[4].innerText; //row of hidden td for industry_id
-
+        qs("#editIndustryId").value = row.children[4].innerText;
         show(editModal);
       }
 
       if (iconDelete) {
         const row = iconDelete.closest("tr");
         rowToDelete = row;
-        qs("#deleteIndustryId").value = row.children[4].innerText; //row of hidden td for industry_id
-        const name = row.children[1].innerText;
-        qs(
-          "#deleteIndustryText"
-        ).textContent = `Are you sure you want to delete "${name}"?`;
-
+        qs("#deleteIndustryId").value = row.children[4].innerText;
+        qs("#deleteIndustryText").textContent = `Are you sure you want to delete "${row.children[1].innerText}"?`;
         show(deleteOverlay);
       }
     });
 
-    qs("#updateIndustryBtn").onclick = async () => {
+    qs("#updateIndustryBtn").addEventListener("click", async () => {
       if (!rowToEdit) return;
-
       const newName = qs("#editIndustryName").value.trim();
       const newDesc = qs("#editIndustryDesc").value.trim();
       const industryId = qs("#editIndustryId").value.trim();
+      if (!newName) return;
 
-      if (newName) {
-        // rowToEdit.children[1].innerText = newName;
-        const result = await editIndustry(industryId, newName, newDesc);
-        if (result.success === false) {
-          alert(result.message); //browser alert message
-        } else {
-          alert(result.message); //browser alert message
-          renumberRows(); //reloads the table data
-          hide(editModal);
-          rowToEdit = null;
-        }
+      const result = await editIndustry(industryId, newName, newDesc);
+      alert(result.message);
+      if (result.success) {
+        hide(editModal);
+        rowToEdit = null;
+        await renumberRows();
       }
-      // rowToEdit.children[2].innerText = newDesc;
-    };
-
-    const cancelDeleteBtn = qs("#cancelDeleteBtn");
-    const confirmDeleteBtn = qs("#confirmDeleteBtn");
-
-    cancelDeleteBtn.onclick = () => {
-      hide(deleteOverlay);
-      rowToDelete = null;
-    };
-
-    confirmDeleteBtn.onclick = async () => {
-      if (rowToDelete) {
-        // const tbody = rowToDelete.parentElement;
-        // tbody.removeChild(rowToDelete);
-
-        const selectedIndustryId =
-          document.getElementById("deleteIndustryId").value;
-        const result = await deleteIndustry(selectedIndustryId);
-        if (result.success === false) {
-          alert(result.message); //browser alert message
-        } else {
-          alert(result.message); //browser alert message
-          document.getElementById("deleteIndustryId").value = "";
-          renumberRows(); // you already had this
-          hide(deleteOverlay);
-          rowToDelete = null;
-        }
-      }
-    };
-
-    qs("#closeView").onclick = () => hide(viewOverlay);
-
-    window.addEventListener("click", (e) => {
-      if (e.target === viewOverlay) hide(viewOverlay);
-      if (e.target === deleteOverlay) hide(deleteOverlay);
-      if (e.target === addModal) hide(addModal);
-      if (e.target === editModal) hide(editModal);
     });
 
+    qs("#cancelDeleteBtn").addEventListener("click", () => {
+      hide(deleteOverlay);
+      rowToDelete = null;
+    });
+
+    qs("#confirmDeleteBtn").addEventListener("click", async () => {
+      if (!rowToDelete) return;
+      const industryId = qs("#deleteIndustryId").value;
+      const result = await deleteIndustry(industryId);
+      alert(result.message);
+      if (result.success) {
+        hide(deleteOverlay);
+        rowToDelete = null;
+        qs("#deleteIndustryId").value = "";
+        await renumberRows();
+      }
+    });
+
+    qs("#closeView").addEventListener("click", () => hide(viewOverlay));
+
+    window.addEventListener("click", (e) => {
+      if ([viewOverlay, deleteOverlay, addModal, editModal].includes(e.target)) {
+        hide(e.target);
+      }
+    });
+
+    // --------------------------
+    // SEARCH
+    // --------------------------
     qs("#searchInput").addEventListener("keyup", (e) => {
       const q = e.target.value.toLowerCase();
       Array.from(tableBody.rows).forEach((row) => {
-        row.style.display = row.innerText.toLowerCase().includes(q)
-          ? ""
-          : "none";
+        row.style.display = row.innerText.toLowerCase().includes(q) ? "" : "none";
       });
     });
 
+    // --------------------------
+    // FETCH & RENDER INDUSTRY
+    // --------------------------
     async function renumberRows() {
-      // Array.from(tableBody.rows).forEach((tr, i) => {
-      //   tr.children[0].innerText = i + 1;
-      // });
       const result = await getIndustryList();
-      if (result.success === false) {
-        alert(result.message); //browser alert message
-      } else {
-        //added td for industry_id but only hidden
-        tableBody.innerHTML = "";
-        for (i = 0; i < result.data.length; i++) {
-          tableBody.insertAdjacentHTML(
-            "beforeend",
-            `
-        <tr>
-          <td>${i + 1}</td>
-          <td>${result.data[i].industry_name}</td>
-          <td>${result.data[i].description}</td>
-          <td class="action-icons">
-            <i class="bi bi-eye-fill icon-view" title="View"></i>
-            <i class="bi bi-pencil-square icon-edit" title="Edit"></i>
-            <i class="bi bi-trash3-fill icon-delete" title="Delete"></i>
-          </td>
-          <td style='display:none;'>${result.data[i].industry_id}</td>
-        </tr>  
-        `
-          );
-        }
+      if (!result.success) {
+        alert(result.message);
+        return;
       }
+      tableBody.innerHTML = "";
+      result.data.forEach((industry, i) => {
+        tableBody.insertAdjacentHTML(
+          "beforeend",
+          `<tr>
+            <td>${i + 1}</td>
+            <td>${industry.industry_name}</td>
+            <td>${industry.description}</td>
+            <td class="action-icons">
+              <i class="bi bi-eye-fill icon-view" title="View"></i>
+              <i class="bi bi-pencil-square icon-edit" title="Edit"></i>
+              <i class="bi bi-trash3-fill icon-delete" title="Delete"></i>
+            </td>
+            <td style="display:none;">${industry.industry_id}</td>
+          </tr>`
+        );
+      });
     }
 
-    // ADDED ↓ initial renumber on load (covers any pre-rendered rows)
-    renumberRows();
-    // ADDED ↑
+    await renumberRows();
 
-    function escapeHtml(str = "") {
-      return str
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-    //GET LIST OF INDUSTRY FUNCTION
+    // --------------------------
+    // SUPABASE FUNCTIONS
+    // --------------------------
     async function getIndustryList() {
-      const { data, error } = await supabase
-        .from("Industry")
-        .select("*")
-        .order("industry_id", { ascending: true });
-
-      if (error) {
-        return {
-          message: error.message,
-          success: false,
-          data: {},
-        };
-      } else {
-        return {
-          message: "got it",
-          success: true,
-          data: data,
-        };
-      }
+      const { data, error } = await supabase.from("Industry").select("*").order("industry_id", { ascending: true });
+      return error
+        ? { success: false, message: error.message, data: [] }
+        : { success: true, message: "Success", data };
     }
 
-    //ADD INDUSTRY FUNCTION
-    async function addIndustry(industryName, industryDescription) {
-      const { data, error } = await supabase.from("Industry").insert([
-        {
-          industry_name: industryName,
-          description: industryDescription,
-          createdAt: new Date().toLocaleString(),
-        },
-      ]);
-
-      if (error) {
-        return {
-          message: error.message,
-          success: false,
-        };
-      } else {
-        return {
-          message: "Industry Added!",
-          success: true,
-        };
-      }
+    async function addIndustry(name, desc) {
+      const { error } = await supabase.from("Industry").insert([{ industry_name: name, description: desc, createdAt: new Date().toLocaleString() }]);
+      return error ? { success: false, message: error.message } : { success: true, message: "Industry Added!" };
     }
 
-    //EDIT INDUSTRY FUNCTION
-    async function editIndustry(industryId, industryName, industryDescription) {
-      const { error } = await supabase
-        .from("Industry")
-        .update({
-          industry_name: industryName,
-          description: industryDescription,
-          modifiedAt: new Date().toLocaleString(),
-        })
-        .eq("industry_id", industryId) // your condition
-        .select();
-
-      if (error) {
-        return {
-          message: error.message,
-          success: false,
-        };
-      } else {
-        return {
-          message: `Industry Updated!`,
-          success: true,
-        };
-      }
+    async function editIndustry(id, name, desc) {
+      const { error } = await supabase.from("Industry").update({ industry_name: name, description: desc, modifiedAt: new Date().toLocaleString() }).eq("industry_id", id);
+      return error ? { success: false, message: error.message } : { success: true, message: "Industry Updated!" };
     }
 
-    //DELETE INDUSTRY FUNCTION
-    async function deleteIndustry(industryId) {
-      const { data, error } = await supabase
-        .from("Industry")
-        .delete()
-        .eq("industry_id", industryId)
-        .select();
-      // .throwOnError();
-      if (error || data.length === 0) {
-        return {
-          message: error?.message || "Foreign key prevents deletion.",
-          success: false,
-        };
-      } else {
-        return {
-          message: `Industry Deleted!`,
-          success: true,
-        };
-      }
+    async function deleteIndustry(id) {
+      const { data, error } = await supabase.from("Industry").delete().eq("industry_id", id).select();
+      if (error || data.length === 0) return { success: false, message: error?.message || "Foreign key prevents deletion." };
+      return { success: true, message: "Industry Deleted!" };
     }
   });
 })();
