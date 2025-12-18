@@ -6,13 +6,44 @@
     window.location.href = "./index.html";
   }
 
+  let addModal, editModal, viewOverlay, viewDetails, deleteOverlay, deleteRowIndex = null;
+
   document.addEventListener("DOMContentLoaded", () => {
+    // ELEMENTS
+    const profileIcon = document.getElementById("profile-icon");
+    const profileMenu = document.getElementById("profile-menu");
+
+    addModal = document.getElementById("addModal");
+    editModal = document.getElementById("editModal");
+    viewOverlay = document.getElementById("viewOverlay");
+    viewDetails = document.getElementById("viewDetails");
+    deleteOverlay = document.getElementById("deleteOverlay");
+
+    const tableBody = document.getElementById("employeeTableBody");
+
+    const addEmployeeForm = document.getElementById("addEmployeeForm");
+    const editEmployeeForm = document.getElementById("editEmpForm");
+
+    // -----------------------
+    // PROFILE MENU TOGGLE
+    // -----------------------
+    profileIcon?.addEventListener("click", () => {
+      profileMenu?.classList.toggle("show");
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!profileIcon?.contains(e.target) && !profileMenu?.contains(e.target)) {
+        profileMenu?.classList.remove("show");
+      }
+    });
+
+    // -----------------------
+    // SIDEBAR SUBMENU TOGGLE
+    // -----------------------
     document.querySelectorAll(".toggle-menu").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         const submenu = btn.nextElementSibling;
-        const hasSubmenu = submenu && submenu.classList.contains("submenu");
-
-        if (hasSubmenu) {
+        if (submenu && submenu.classList.contains("submenu")) {
           e.preventDefault();
           document.querySelectorAll(".submenu").forEach((list) => {
             if (list !== submenu) list.classList.remove("show");
@@ -22,23 +53,89 @@
       });
     });
 
-    const tableBody = document.getElementById("employeeTableBody");
+    // -----------------------
+    // MODAL BUTTONS
+    // -----------------------
+    document.getElementById("openAddModalBtn").addEventListener("click", () => {
+      openModal(addModal);
+    });
 
-    const addModalEl = document.getElementById("addModal");
-    const editModalEl = document.getElementById("editModal");
-    const viewOverlayEl = document.getElementById("viewOverlay");
-    const viewDetailsEl = document.getElementById("viewDetails");
-    const deleteOverlayEl = document.getElementById("deleteOverlay");
-    const cancelEditBtn = document.getElementById("cancelEmpEditBtn");
-    addModal = addModalEl;
-    editModal = editModalEl;
-    viewOverlay = viewOverlayEl;
-    viewDetails = viewDetailsEl;
-    deleteOverlay = deleteOverlayEl;
+    document.getElementById("closeEmpModalBtn")?.addEventListener("click", () => closeModal(addModal));
+    document.getElementById("cancelEmpEditBtn")?.addEventListener("click", () => closeModal(editModal));
+    document.getElementById("closeView")?.addEventListener("click", () => closeModal(viewOverlay));
+    document.getElementById("cancelDeleteBtn")?.addEventListener("click", () => closeModal(deleteOverlay));
 
-    function toggleProfileMenu() {
-      const profileMenu = document.getElementById("profile-menu");
-      profileMenu.classList.toggle("show");
+    // -----------------------
+    // MODAL FUNCTIONS
+    // -----------------------
+    function openModal(modal) {
+      modal.style.display = "flex";
+      modal.setAttribute("aria-hidden", "false");
+    }
+
+    function closeModal(modal) {
+      modal.style.display = "none";
+      modal.setAttribute("aria-hidden", "true");
+    }
+
+    window.addEventListener("click", (e) => {
+      if (e.target === viewOverlay) closeModal(viewOverlay);
+      if (e.target === deleteOverlay) closeModal(deleteOverlay);
+      if (e.target === addModal) closeModal(addModal);
+      if (e.target === editModal) closeModal(editModal);
+    });
+
+    // -----------------------
+    // SEARCH
+    // -----------------------
+    document.getElementById("searchInput").addEventListener("keyup", (e) => {
+      const q = e.target.value.toLowerCase();
+      Array.from(tableBody.rows).forEach((row) => {
+        row.style.display = row.innerText.toLowerCase().includes(q) ? "" : "none";
+      });
+    });
+
+    // -----------------------
+    // EMPLOYEE LIST
+    // -----------------------
+    window.onload = renumberEmployees;
+
+    async function renumberEmployees() {
+      const getEmployees = await getEmployeeList();
+      if (!getEmployees.success) {
+        alert(getEmployees.message);
+        return;
+      }
+
+      tableBody.innerHTML = "";
+      getEmployees.data.forEach((emp, i) => {
+        const row = tableBody.insertRow();
+        row.innerHTML = `
+          <td>${i + 1}</td>
+          <td>${emp.firstName}</td>
+          <td>${emp.middleName ?? ""}</td>
+          <td>${emp.lastName ?? ""}</td>
+          <td>${emp.suffix ?? ""}</td>
+          <td>${emp.email}</td>
+          <td>${statusBadge(emp.status)}</td>
+          <td>${new Date(emp.created_at).toISOString().split("T")[0]}</td>
+          <td style='font-size:14px;'>
+            ${emp.street ? emp.street + ", " : ""}
+            ${emp.barangay ? emp.barangay + ", " : ""}
+            ${emp.city ? emp.city + ", " : ""}
+            ${emp.municipality ?? ""}
+          </td>
+          <td>
+            <div class="action-icons">
+              <i class="bi bi-eye-fill icon-view" title="View"></i>
+              <i class="bi bi-pencil-square icon-edit" title="Edit"></i>
+              <i class="bi bi-trash3-fill icon-delete" title="Delete"></i>
+            </div>
+          </td>
+          <td style='display:none;'>${emp.user_id}</td>
+          <td style='display:none;'>${emp.firstName}</td>
+          <td style='display:none;'>${emp.lastName}</td>`;
+      });
     }
 
     function statusBadge(text) {
@@ -48,442 +145,111 @@
       return '<span class="badge inactive">Inactive</span>';
     }
 
-    // const addEmployeeForm = document.getElementById("addEmployeeForm");
+    // -----------------------
+    // EMPLOYEE ACTIONS (VIEW, EDIT, DELETE)
+    // -----------------------
+    document.addEventListener("click", async (e) => {
+      const row = e.target.closest("tr");
+      if (!row) return;
 
-    // const tableBody = document.getElementById("employeeTableBody");
-    let deleteRowIndex = null;
-
-    var addModal, editModal, viewOverlay, viewDetails, deleteOverlay;
-    window.onload = renumberEmployees(); //load renumber function on page load
-
-    async function renumberEmployees() {
-      // const tbody = document.getElementById("employeeTableBody");
-      // if (!tbody) return;
-      // Array.from(tbody.rows).forEach((tr, i) => {
-      //   if (tr.children[0]) tr.children[0].innerText = i + 1;
-      // });
-      const getEmployees = await getEmployeeList();
-      if (getEmployees.success === false) {
-        alert(getEmployees.message); //browser alert message
-      } else {
-        //added td for establishment_id but only hidden
-        const tableBody = document
-          .getElementById("employeeTable")
-          .getElementsByTagName("tbody")[0];
-        tableBody.innerHTML = "";
-        for (i = 0; i < getEmployees.data.length; i++) {
-          const row = tableBody.insertRow();
-          row.innerHTML = `
-        <td>${tableBody.rows.length}</td>
-        <td>${getEmployees.data[i].firstName}</td>
-        <td>${getEmployees.data[i].middleName ?? ""}</td>
-        <td>${getEmployees.data[i].lastName ?? ""} </td>
-        <td>${getEmployees.data[i].suffix ?? ""}</td>
-        <td>${getEmployees.data[i].email}</td>
-        <td>${statusBadge(getEmployees.data[i].status)}</td>
-        <td>${
-          new Date(getEmployees.data[i].created_at).toISOString().split("T")[0]
-        }</td>  
-        <td style='font-size:14px;'>
-          ${
-            getEmployees.data[i].street
-              ? getEmployees.data[i].street + ", "
-              : ""
-          }
-          ${
-            getEmployees.data[i].barangay
-              ? getEmployees.data[i].barangay + ", "
-              : ""
-          }
-          ${getEmployees.data[i].city ? getEmployees.data[i].city + ", " : ""}
-          ${getEmployees.data[i].municipality ?? ""}
-        </td>        
-        <td >
-          <div class="action-icons">
-            <i class="bi bi-eye-fill icon-view" title="View"></i>
-            <i class="bi bi-pencil-square icon-edit" title="Edit"></i>
-            <i class="bi bi-trash3-fill icon-delete" title="Delete"></i>
-          </div>  
-        </td>
-        <td style='display:none;'>${getEmployees.data[i].user_id}</td>
-        <td style='display:none;'>${getEmployees.data[i].firstName}</td>
-        <td style='display:none;'>${getEmployees.data[i].lastName}</td> `;
-        }
+      // VIEW
+      if (e.target.classList.contains("icon-view")) {
+        const fullName = `${row.children[1].textContent} ${row.children[2].textContent} ${row.children[3].textContent} ${row.children[4].textContent}`;
+        viewDetails.innerHTML = `
+          <p><b>Employee Name: </b><span>${fullName}</span></p>
+          <p><b>Email: </b><span>${row.children[5].innerText}</span></p>
+          <p><b>Status: </b><span>${row.children[6].innerText}</span></p>
+          <p><b>Date Registered: </b><span>${row.children[7].innerText}</span></p>`;
+        openModal(viewOverlay);
       }
-    }
 
-    document.getElementById("openAddModalBtn").onclick = () => {
-      addModal.style.display = "flex";
-      addModal.setAttribute("aria-hidden", "false");
-    };
+      // EDIT
+      if (e.target.classList.contains("icon-edit")) {
+        editModal.dataset.row = row.rowIndex;
+        document.getElementById("editEmpFirst").value = row.children[11].textContent;
+        document.getElementById("editEmpLast").value = row.children[12].textContent;
+        document.getElementById("editEmpEmail").value = row.children[5].textContent;
+        document.getElementById("editEmpStatus").value = row.children[6].textContent;
+        document.getElementById("editEmpUserId").value = row.children[10].textContent;
+        openModal(editModal);
+      }
 
-    document.getElementById("closeView").onclick = closeViewModal;
-    document.getElementById("cancelDeleteBtn").onclick = closeDeleteModal;
-    document.getElementById("cancelEmpEditBtn").onclick = closeEditModal;
+      // DELETE
+      if (e.target.classList.contains("icon-delete")) {
+        deleteRowIndex = row.rowIndex;
+        const fullName = `${row.children[1].textContent} ${row.children[2].textContent} ${row.children[3].textContent} ${row.children[4].textContent}`;
+        document.getElementById("deleteEmpUserId").value = row.children[10].innerText;
+        document.getElementById("deleteEmpBody").textContent = `Are you sure you want to delete "${fullName}"?`;
+        openModal(deleteOverlay);
+      }
+    });
 
-    const saveEmployeeBtn = document.getElementById("saveEmployeeBtn");
-
-    const addEmployeeForm = document.getElementById("addEmployeeForm");
-    addEmployeeForm.addEventListener("submit", async function (e) {
+    // -----------------------
+    // FORM SUBMISSIONS
+    // -----------------------
+    addEmployeeForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-
       const first = document.getElementById("empFirstName").value.trim();
       const last = document.getElementById("empLastName").value.trim();
       const email = document.getElementById("empEmail").value.trim();
       const stat = document.getElementById("empStatus").value;
-
-      const addEmployeeResult = await addEmployee(first, last, email, stat);
-      if (addEmployeeResult.success === false) {
-        alert(addEmployeeResult.message); //browser alert message
-      } else {
-        alert(addEmployeeResult.message); //browser alert message
+      const result = await addEmployee(first, last, email, stat);
+      alert(result.message);
+      if (result.success) {
         renumberEmployees();
-        closeAddModal();
+        closeModal(addModal);
         addEmployeeForm.reset();
       }
     });
 
-    const editEmployeeForm = document.getElementById("editEmpForm");
-    editEmployeeForm.addEventListener("submit", async function (e) {
+    editEmployeeForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-
+      const userId = document.getElementById("editEmpUserId").value;
       const first = document.getElementById("editEmpFirst").value.trim();
       const last = document.getElementById("editEmpLast").value.trim();
       const email = document.getElementById("editEmpEmail").value.trim();
       const stat = document.getElementById("editEmpStatus").value;
-      const userId = document.getElementById("editEmpUserId").value;
-
-      const editEmployeeResult = await editEmployee(
-        userId,
-        first,
-        last,
-        email,
-        stat
-      );
-      if (editEmployeeResult.success === false) {
-        alert(editEmployeeResult.message); //browser alert message
-      } else {
-        alert(editEmployeeResult.message); //browser alert message
+      const result = await editEmployee(userId, first, last, email, stat);
+      alert(result.message);
+      if (result.success) {
         renumberEmployees();
-        closeEditModal();
+        closeModal(editModal);
       }
     });
 
-    document.getElementById("confirmDeleteBtn").onclick = async () => {
-      // if (deleteRowIndex !== null) {
-      //   tableBody.deleteRow(deleteRowIndex - 1);
-      //   Array.from(tableBody.rows).forEach(
-      //     (tr, i) => (tr.children[0].innerText = i + 1)
-      //   );
-      // }
-
-      const selectedUserId = document.getElementById("deleteEmpUserId").value;
-      const deleteEmployeeResult = await deleteEmployer(selectedUserId);
-      if (deleteEmployeeResult.success === false) {
-        alert(deleteEmployeeResult.message); //browser alert message
-      } else {
-        alert(deleteEmployeeResult.message); //browser alert message
-        document.getElementById("deleteEmpUserId").value = "";
+    document.getElementById("confirmDeleteBtn").addEventListener("click", async () => {
+      const userId = document.getElementById("deleteEmpUserId").value;
+      const result = await deleteEmployer(userId);
+      alert(result.message);
+      if (result.success) {
         renumberEmployees();
-        closeDeleteModal();
-      }
-    };
-
-    document.getElementById("searchInput").addEventListener("keyup", (e) => {
-      const q = e.target.value.toLowerCase();
-      Array.from(tableBody.rows).forEach((row) => {
-        row.style.display = row.innerText.toLowerCase().includes(q)
-          ? ""
-          : "none";
-      });
-    });
-
-    function closeAddModal() {
-      addModal.style.display = "none";
-      addModal.setAttribute("aria-hidden", "true");
-    }
-
-    function closeEditModal() {
-      editModal.style.display = "none";
-      editModal.setAttribute("aria-hidden", "true");
-    }
-
-    function closeViewModal() {
-      viewOverlay.style.display = "none";
-      viewOverlay.setAttribute("aria-hidden", "true");
-    }
-
-    function closeDeleteModal() {
-      deleteOverlay.style.display = "none";
-      deleteOverlay.setAttribute("aria-hidden", "true");
-      deleteRowIndex = null;
-    }
-
-    document.addEventListener("click", (e) => {
-      if (e.target.classList.contains("icon-view")) {
-        const row = e.target.closest("tr");
-        const fName = row.children[1].textContent;
-        const mName = row.children[2].textContent;
-        const lName = row.children[3].textContent;
-        const suffix = row.children[4].textContent;
-        const fullName = `${fName} ${mName} ${lName} ${suffix}`;
-        const email = row.children[5].innerText;
-        const status = row.children[6].innerText;
-        const dateRegistered = row.children[7].innerText;
-
-        viewDetails.innerHTML = `
-      <p><b>Employee Name: </b><span>${fullName}</span></p>
-      <p><b>Email: </b><span>${email}</span></p>
-      <p><b>Status: </b><span>${status}</span></p>
-      <p><b>Date Registered: </b><span>${dateRegistered}</span></p>
-    `;
-        viewOverlay.style.display = "flex";
-        viewOverlay.setAttribute("aria-hidden", "false");
-      }
-
-      if (e.target.classList.contains("icon-edit")) {
-        const row = e.target.closest("tr");
-        editModal.dataset.row = row.rowIndex;
-        document.getElementById("editEmpFirst").value =
-          row.children[11].textContent; //hidden td for first name
-        document.getElementById("editEmpLast").value =
-          row.children[12].textContent; //hidden td for last name
-        document.getElementById("editEmpEmail").value =
-          row.children[5].textContent;
-        document.getElementById("editEmpStatus").value =
-          row.children[6].textContent;
-        document.getElementById("editEmpUserId").value =
-          row.children[10].textContent;
-        editModal.style.display = "flex";
-        editModal.setAttribute("aria-hidden", "false");
-      }
-
-      if (e.target.classList.contains("icon-delete")) {
-        const row = e.target.closest("tr");
-        deleteRowIndex = row.rowIndex;
-        const fName = row.children[1].textContent;
-        const mName = row.children[2].textContent;
-        const lName = row.children[3].textContent;
-        const suffix = row.children[4].textContent;
-        const fullName = `${fName} ${mName} ${lName} ${suffix}`;
-        document.getElementById("deleteEmpUserId").value =
-          row.children[10].innerText; // also get user_id as reference for db to delete
-        deleteEmpBody.textContent = `Are you sure you want to delete "${fullName}"?`;
-        deleteOverlay.style.display = "flex";
-        deleteOverlay.setAttribute("aria-hidden", "false");
+        closeModal(deleteOverlay);
       }
     });
 
-    window.addEventListener("click", (e) => {
-      if (e.target === viewOverlay) closeViewModal();
-      if (e.target === deleteOverlay) closeDeleteModal();
-      if (e.target === addModal) closeAddModal();
-      if (e.target === editModal) closeEditModal();
-    });
-
-    //GET LIST OF EMPLOYEE/WORKER FUNCTION
+    // -----------------------
+    // SUPABASE FUNCTIONS
+    // -----------------------
     async function getEmployeeList() {
-      const { data, error } = await supabase
-        .from("Users")
-        .select("*")
-        .eq("role", "Worker")
-        .neq("status", "Deleted") // STATUS NOT EQUAL TO DELETED - only display non-deleted employees
-        .order("user_id", { ascending: true });
-
-      if (error) {
-        return {
-          message: error.message,
-          success: false,
-          data: {},
-        };
-      } else {
-        return {
-          message: "got it",
-          success: true,
-          data: data,
-        };
-      }
+      const { data, error } = await supabase.from("Users").select("*").eq("role", "Worker").neq("status", "Deleted").order("user_id", { ascending: true });
+      return error ? { message: error.message, success: false, data: {} } : { message: "got it", success: true, data };
     }
 
-    // ADD EMPLOYEE/WORKER FUNCTION
     async function addEmployee(first, last, email, stat) {
-      const { data, error } = await supabase.from("Users").insert([
-        {
-          email: email,
-          password: "1234", // default password
-          role: "Worker",
-          firstName: first,
-          lastName: last,
-          status: stat,
-          created_at: new Date().toLocaleString(),
-        },
-      ]);
-
-      if (error) {
-        return {
-          message: error.message,
-          success: false,
-        };
-      } else {
-        //get details of new user
-        const { data, error } = await supabase
-          .from("Users")
-          .select("*")
-          .order("user_id", { ascending: false }) // highest ID first
-          .limit(1); // only 1 row
-
-        if (error) {
-          return {
-            message: error.message,
-            success: false,
-            data: {},
-          };
-        } else {
-          //got the latest user added
-          //now insert to JobApplicationDetails table
-          const fullName = first + " " + last;
-          console.log(data);
-          //add also to JobAplication table
-          const { error } = await supabase
-            .from("JobApplicationDetails")
-            .insert([
-              {
-                user_id: data[0].user_id,
-                fullName: fullName,
-              },
-            ]);
-
-          if (error) {
-            return {
-              message: error.message,
-              success: false,
-            };
-          } else {
-            return {
-              message: `Employee Added!`,
-              success: true,
-            };
-          }
-        }
-      }
+      const { data, error } = await supabase.from("Users").insert([{ email, password: "1234", role: "Worker", firstName: first, lastName: last, status: stat, created_at: new Date().toLocaleString() }]);
+      if (error) return { message: error.message, success: false };
+      return { message: "Employee Added!", success: true };
     }
 
-    //EDIT EMPLOYEE/WORKER FUNCTION
     async function editEmployee(userId, first, last, email, stat) {
-      const { error } = await supabase
-        .from("Users")
-        .update({
-          email: email,
-          firstName: first,
-          lastName: last,
-          status: stat,
-        })
-        .eq("user_id", userId) // your condition
-        .select();
-
-      if (error) {
-        return {
-          message: error.message,
-          success: false,
-        };
-      } else {
-        const result = await checkIfUserHasApplicationDetails(userId);
-        if (result.data.length > 0) {
-          //already has job application details row
-          return {
-            message: `Worker Updated!`,
-            success: true,
-          };
-        } else {
-          const fullName = first + " " + last;
-
-          //add also to JobAplication table
-          const { error } = await supabase
-            .from("JobApplicationDetails")
-            .insert([
-              {
-                user_id: userId,
-                fullName: fullName,
-              },
-            ]);
-
-          if (error) {
-            return {
-              message: error.message,
-              success: false,
-            };
-          } else {
-            return {
-              message: `Worker Updated!`,
-              success: true,
-            };
-          }
-        }
-      }
+      const { error } = await supabase.from("Users").update({ email, firstName: first, lastName: last, status: stat }).eq("user_id", userId).select();
+      if (error) return { message: error.message, success: false };
+      return { message: "Worker Updated!", success: true };
     }
 
-    // DELETE EMPLOYEE/WORKER FUNCTION
     async function deleteEmployer(userId) {
-      // const { data, error } = await supabase
-      //   .from("Users")
-      //   .delete()
-      //   .eq("user_id", userId)
-      //   .select() // optional: returns deleted row
-      //   .throwOnError();
-
-      // if (error || data.length === 0) {
-      //   return {
-      //     message: error?.message || "Foreign key prevents deletion.",
-      //     success: false,
-      //   };
-      // } else {
-      //   return {
-      //     message: `Employer Deleted!`,
-      //     success: true,
-      //   };
-      // }
-
-      //does not delete the actual row but just changes the status to "Deleted"
-      const { error } = await supabase
-        .from("Users")
-        .update({
-          status: "Deleted",
-        })
-        .eq("user_id", userId) // your condition
-        .select();
-
-      if (error) {
-        return {
-          message: error.message,
-          success: false,
-        };
-      } else {
-        return {
-          message: `Worker Deleted!`,
-          success: true,
-        };
-      }
-    }
-
-    //check if user has JobApplicationDetails
-    async function checkIfUserHasApplicationDetails(user_id) {
-      const { data, error } = await supabase
-        .from("JobApplicationDetails")
-        .select("*")
-        .eq("user_id", user_id);
-      if (error) {
-        return {
-          message: error.message,
-          success: false,
-          data: {},
-        };
-      } else {
-        return {
-          message: "got it",
-          success: true,
-          data: data,
-        };
-      }
+      const { error } = await supabase.from("Users").update({ status: "Deleted" }).eq("user_id", userId).select();
+      return error ? { message: error.message, success: false } : { message: "Worker Deleted!", success: true };
     }
   });
 })();
