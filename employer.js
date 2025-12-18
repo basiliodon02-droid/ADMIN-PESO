@@ -10,6 +10,22 @@
       window.location.href = "./index.html";
     }
 
+    // PROFILE MENU TOGGLE (ADD THIS)
+  // -------------------------------
+  const profileIcon = document.getElementById("profile-icon");
+  const profileMenu = document.getElementById("profile-menu");
+
+  profileIcon?.addEventListener("click", () => {
+    profileMenu?.classList.toggle("show");
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!profileIcon?.contains(e.target) && !profileMenu?.contains(e.target)) {
+      profileMenu?.classList.remove("show");
+    }
+  });
+
+
     // -------------------------------
     // DOM Elements
     // -------------------------------
@@ -68,13 +84,14 @@
 
     const empSearch = document.getElementById("employerSearchInput");
     empSearch?.addEventListener("input", e => {
-      const q = e.target.value.toLowerCase();
-      Array.from(empTableBody.rows).forEach(row => {
-        const name = row.cells[1]?.textContent?.toLowerCase() || "";
-        const email = row.cells[5]?.textContent?.toLowerCase() || "";
-        row.style.display = !q || name.includes(q) || email.includes(q) ? "" : "none";
-      });
-    });
+     const q = e.target.value.toLowerCase();
+
+     Array.from(empTableBody.rows).forEach(row => {
+    const rowText = row.innerText.toLowerCase();
+    row.style.display = rowText.includes(q) ? "" : "none";
+  });
+});
+
 
   }); // DOMContentLoaded
 
