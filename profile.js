@@ -9,6 +9,37 @@
   const userId = localStorage.getItem("userId");
   let currentPwd = "";
 
+  // ---------------------------
+  // Sidebar Master Data Dropdown
+  // ---------------------------
+  document.querySelectorAll(".toggle-menu").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const submenu = btn.nextElementSibling;
+
+      // Close all other submenus
+      document.querySelectorAll(".submenu").forEach((list) => {
+        if (list !== submenu) list.classList.remove("show");
+      });
+
+      // Toggle clicked submenu
+      submenu.classList.toggle("show");
+    });
+  });
+
+  // Automatically expand submenu for current page
+  const currentPage = window.location.pathname.split("/").pop();
+  document.querySelectorAll(".submenu-item").forEach((item) => {
+    if (item.getAttribute("href") === currentPage) {
+      item.classList.add("active");        // highlight
+      const submenu = item.closest(".submenu");
+      if (submenu) submenu.classList.add("show"); // expand parent
+    }
+  });
+
+  // ---------------------------
+  // Profile menu toggle
+  // ---------------------------
   function toggleProfileMenu() {
     const profileMenu = document.getElementById("profile-menu");
     profileMenu.classList.toggle("show");
@@ -24,6 +55,9 @@
     }
   });
 
+  // ---------------------------
+  // Edit Profile Modal
+  // ---------------------------
   const modal = document.getElementById("editModal");
   const openBtn = document.getElementById("editBtn");
   const closeBtn = document.getElementById("closeModal");
@@ -34,8 +68,9 @@
     document.getElementById("currentPassword").value = "";
     document.getElementById("newPassword").value = "";
     document.getElementById("confirmPassword").value = "";
+
     const result = await getUserDetails(userId);
-    if (result.success == true) {
+    if (result.success) {
       const firstName = result.data[0].firstName ?? "";
       const middleName = result.data[0].middleName ?? "";
       const lastName = result.data[0].lastName ?? "";
@@ -60,7 +95,6 @@
       document.getElementById("editEmail").value = result.data[0].email;
       document.getElementById("editContact").value =
         result.data[0].contact_number ?? "";
-    } else {
     }
   };
 
@@ -74,12 +108,6 @@
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-
-    // document.getElementById("editFName").value = document.getElementById("nameCell").textContent;
-    // document.getElementById("editEmail").value = document.getElementById("emailCell").textContent;
-    // // document.getElementById("usernameCell").textContent = document.getElementById("editUsername").value;
-    // document.getElementById("editContact").value = document.getElementById("contactCell").textContent;
-    // document.getElementById("editName").value = document.getElementById("displayName").textContent;
 
     const currentPassword = document.getElementById("currentPassword").value;
     const newPassword = document.getElementById("newPassword").value;
@@ -113,46 +141,21 @@
       contact_number,
       password
     );
-    if (result.success == true) {
+
+    if (result.success) {
       alert("Profile and password updated successfully!");
       modal.style.display = "none";
       form.reset();
-
-      const result = await getUserDetails(userId);
-      if (result.success == true) {
-        const firstName = result.data[0].firstName ?? "";
-        const middleName = result.data[0].middleName ?? "";
-        const lastName = result.data[0].lastName ?? "";
-        const suffix = result.data[0].suffix ?? "";
-        const fullName = `${firstName} ${middleName} ${lastName} ${suffix}`;
-        currentPwd = result.data[0].password;
-
-        document.getElementById("displayName").innerText = fullName;
-        document.getElementById("role").innerText = result.data[0].role;
-        document.getElementById("nameCell").innerText = fullName;
-        document.getElementById("emailCell").innerText = result.data[0].email;
-        document.getElementById("contactCell").innerText =
-          result.data[0].contact_number ?? "-";
-        document.getElementById("roleCell").innerText = result.data[0].role;
-        document.getElementById("createDateCell").innerText =
-          result.data[0].created_at;
-
-        document.getElementById("editFName").value = firstName;
-        document.getElementById("editMName").value = middleName;
-        document.getElementById("editLName").value = lastName;
-        document.getElementById("editSuffix").value = suffix;
-        document.getElementById("editEmail").value = result.data[0].email;
-        document.getElementById("editContact").value =
-          result.data[0].contact_number ?? "";
-      } else {
-      }
+      await loadUserData();
     } else {
-      alert("Profile and password updated failed!");
+      alert("Profile update failed!");
     }
   });
 
-  window.onload = async function () {
-    //initially hide stats numbers
+  // ---------------------------
+  // Load user data
+  // ---------------------------
+  async function loadUserData() {
     document.getElementById("displayName").innerText = "-";
     document.getElementById("role").innerText = "-";
     document.getElementById("nameCell").innerText = "-";
@@ -162,7 +165,7 @@
     document.getElementById("createDateCell").innerText = "-";
 
     const result = await getUserDetails(userId);
-    if (result.success == true) {
+    if (result.success) {
       const firstName = result.data[0].firstName ?? "";
       const middleName = result.data[0].middleName ?? "";
       const lastName = result.data[0].lastName ?? "";
@@ -187,28 +190,23 @@
       document.getElementById("editEmail").value = result.data[0].email;
       document.getElementById("editContact").value =
         result.data[0].contact_number ?? "";
-    } else {
     }
-  };
+  }
 
+  window.onload = loadUserData;
+
+  // ---------------------------
+  // Supabase API functions
+  // ---------------------------
   async function getUserDetails(user_id) {
     const { data, error } = await supabase
       .from("Users")
       .select("*")
       .eq("user_id", user_id);
     if (error) {
-      return {
-        message: error.message,
-        success: false,
-        data: {},
-      };
-    } else {
-      return {
-        message: "got it",
-        success: true,
-        data: data,
-      };
+      return { message: error.message, success: false, data: {} };
     }
+    return { message: "got it", success: true, data };
   }
 
   async function editProfile(
@@ -224,27 +222,20 @@
     const { error } = await supabase
       .from("Users")
       .update({
-        firstName: firstName,
-        middleName: middleName,
-        lastName: lastName,
-        suffix: suffix,
-        email: email,
-        contact_number: contact_number,
-        password: password,
+        firstName,
+        middleName,
+        lastName,
+        suffix,
+        email,
+        contact_number,
+        password,
       })
-      .eq("user_id", user_id) // your condition
+      .eq("user_id", user_id)
       .select();
 
     if (error) {
-      return {
-        message: error.message,
-        success: false,
-      };
-    } else {
-      return {
-        message: `Profile Updated!`,
-        success: true,
-      };
+      return { message: error.message, success: false };
     }
+    return { message: "Profile Updated!", success: true };
   }
 })();
