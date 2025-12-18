@@ -6,10 +6,22 @@
     if (localStorage.getItem("isLoggedIn") == "FALSE") {
       window.location.href = "./index.html";
     }
-    function toggleProfileMenu() {
-      const profileMenu = document.getElementById("profile-menu");
+
+    // -----------------------------
+    // Profile Menu Toggle Fix
+    // -----------------------------
+    const profileIcon = document.getElementById("profile-icon");
+    const profileMenu = document.getElementById("profile-menu");
+
+    profileIcon.addEventListener("click", () => {
       profileMenu.classList.toggle("show");
-    }
+    });
+
+    window.addEventListener("click", (e) => {
+      if (!profileIcon.contains(e.target) && !profileMenu.contains(e.target)) {
+        profileMenu.classList.remove("show");
+      }
+    });
 
     (function openDefault() {
       const master = document.querySelector(".nav-item > .toggle-menu");
@@ -28,7 +40,6 @@
         submenu.classList.toggle("show");
       });
     });
-
     const skillsTableBody = document.getElementById("skillsTableBody");
 
     const addModal = document.getElementById("addModal");
