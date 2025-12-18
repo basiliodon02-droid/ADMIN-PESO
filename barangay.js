@@ -1,3 +1,21 @@
+// -----------------------
+// Profile toggle
+// -----------------------
+const profileIcon = document.getElementById("profile-icon");
+const profileMenu = document.getElementById("profile-menu");
+
+profileIcon.addEventListener("click", (e) => {
+  e.stopPropagation(); // prevent document click from closing immediately
+  profileMenu.classList.toggle("show");
+});
+
+// Close profile menu when clicking outside
+document.addEventListener("click", (e) => {
+  if (!e.target.closest(".profile-container")) {
+    profileMenu.classList.remove("show");
+  }
+});
+
 (() => {
   const supabase = window.supabaseClient;
   if (!supabase) throw new Error("Supabase client is not initialized!");
@@ -53,11 +71,11 @@
     // -----------------------
     // Add Modal
     // -----------------------
-    openAddBtn.onclick = () => showLayer(addModal);
-    closeViewBtn.onclick = closeViewModal;
-    cancelDeleteBtn.onclick = closeDeleteModal;
+    openAddBtn.addEventListener("click", () => showLayer(addModal));
+    closeViewBtn.addEventListener("click", closeViewModal);
+    cancelDeleteBtn.addEventListener("click", closeDeleteModal);
 
-    saveBarangayBtn.onclick = async () => {
+    saveBarangayBtn.addEventListener("click", async () => {
       const name = document.getElementById("addBarangayInput").value.trim();
       if (!name) return;
       const result = await addBarangay(name);
@@ -67,12 +85,12 @@
         closeAddModal();
         await renumberBarangays();
       }
-    };
+    });
 
     // -----------------------
     // Edit Modal
     // -----------------------
-    updateBarangayBtn.onclick = async () => {
+    updateBarangayBtn.addEventListener("click", async () => {
       const newName = document.getElementById("editBarangayInput").value.trim();
       const barangayId = document.getElementById("editBarangayId").value;
       if (!newName || !barangayId) return;
@@ -83,12 +101,12 @@
         closeEditModal();
         await renumberBarangays();
       }
-    };
+    });
 
     // -----------------------
     // Delete Barangay
     // -----------------------
-    confirmDeleteBtn.onclick = async () => {
+    confirmDeleteBtn.addEventListener("click", async () => {
       const barangayId = document.getElementById("deleteBarangayId").value;
       if (!barangayId) return;
       const result = await deleteBarangay(barangayId);
@@ -98,7 +116,7 @@
         closeDeleteModal();
         await renumberBarangays();
       }
-    };
+    });
 
     // -----------------------
     // Table row click (View/Edit/Delete)
@@ -223,5 +241,4 @@
       return { success: false, message: err.message || "Error" };
     }
   }
-
 })();
