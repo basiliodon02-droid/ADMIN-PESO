@@ -253,18 +253,49 @@
     </div>
 
     <div id="jobModal" class="modal hidden">
-      <div class="modal-content">
-        <span id="closeModal" class="close">&times;</span>
+  <div class="modal-content">
+    <span id="closeModal" class="close">&times;</span>
+    <h2 id="mJob"></h2>
+    <p><b>Applicant:</b> <span id="mApplicant"></span></p>
+    <p><b>Establishment:</b> <span id="mEst"></span></p>
+    <p><b>Status:</b> <span id="mStatus"></span></p>
+    <p><b>Job Remarks:</b></p>
+    <div id="mRemarks"></div>
+    <hr/>
+    <h3>Applicant Background</h3>
+    <b>Work Experience</b><ul id="mWork"></ul>
+    <b>Eligibilities</b><ul id="mElig"></ul>
+    <b>Trainings</b><ul id="mTrain"></ul>
+    <hr/>
+    <h3>Weighted Matching Computation</h3>
+    <div id="mComp"></div>
+    <h3>ℹ️ Scoring Notes</h3>
+    
+  <p>
+    <b>Max Score</b> represents a <b>100% match</b> for this job.
+    It is computed by summing the weights of all relevant job-related keywords.
+  </p>
 
-        <h2 id="modalJobTitle"></h2>
-        <p><strong>Establishment:</strong> <span id="modalEstablishment"></span></p>
+  <ul>
+    <li><b>Job Title words</b> → 5 points each</li>
+    <li><b>Industry words</b> → 3 points each</li>
+    <li><b>Job Remarks words</b> → 2 points each</li>
+    <li><b>Establishment words</b> → 1 point each</li>
+  </ul>
 
-        <hr />
+  <p>
+    The applicant’s score is the total points of matched keywords found in
+    their <b>work experience</b>, <b>eligibilities</b>, and <b>trainings</b>.
+  </p>
 
-        <p><strong>Remarks:</strong></p>
-        <div id="modalRemarks" class="modal-remarks"></div>
-      </div>
-    </div>
+  <p>
+    <b>Final Percentage Formula:</b><br/>
+    <code>(Applicant Score ÷ Max Score) × 100</code>
+  </p>
+</div>
+  </div>
+</div>
+
 
 
   </body>
