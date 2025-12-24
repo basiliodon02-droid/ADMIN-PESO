@@ -18,8 +18,6 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="vacancies.css" />
-
-
   </head>
   <body class="dashboard-body">
     <aside class="sidebar">
@@ -27,9 +25,10 @@
 
       <nav class="navbar flex-column">
         <ul class="navbar-nav w-100">
+          <li class="nav-item">
+            <a href="dashboard.html" class="nav-link">🗂️ Dashboard</a>
+          </li>
 
-          <li class="nav-item"><a href="dashboard.html" class="nav-link">🗂️ Dashboard</a></li>
-          
           <li class="nav-item">
             <a href="#" class="nav-link toggle-menu"
               >⚙️ Master Data <i class="fa-solid fa-chevron-down ms-auto"></i
@@ -157,6 +156,8 @@
             </table>
           </div>
         </div>
+        <br />
+        <button class="btn-add" style="width: 100px" id="print">Print</button>
       </section>
     </main>
 
@@ -227,7 +228,9 @@
     <div class="skl-overlay" id="deleteOverlay" aria-hidden="true">
       <div class="skl-modal">
         <h2>⚠️ Delete Vacancy</h2>
-        <p id="deleteLabel">Are you sure you want to delete this job vacancy?</p>
+        <p id="deleteLabel">
+          Are you sure you want to delete this job vacancy?
+        </p>
         <div class="modal-actions">
           <button class="btn-cancel" id="cancelDelete">Cancel</button>
           <button class="btn-delete" id="confirmDelete">Delete</button>
@@ -237,7 +240,7 @@
   </body>
 </html>
 
-  <!-- 1️⃣ Supabase library -->
+<!-- 1️⃣ Supabase library -->
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
 <!-- Your client setup -->

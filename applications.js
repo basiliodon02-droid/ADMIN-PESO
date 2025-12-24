@@ -18,6 +18,9 @@
     const searchInput = document.getElementById("searchInput");
     const tableBody = document.querySelector("#applicationsTable tbody");
 
+    const printButton = document.getElementById("print");
+    printButton.addEventListener("click", printVisibleApplicants);
+
     // -----------------------
     // Profile dropdown
     // -----------------------
@@ -184,5 +187,102 @@
         message: err.message || "Error fetching establishment details.",
       };
     }
+  }
+
+  function printVisibleApplicants() {
+    const tableBody = document.querySelector("#applicationsTable tbody");
+
+    const rows = Array.from(tableBody.querySelectorAll("tr")).filter(
+      (row) => row.style.display !== "none"
+    );
+
+    if (rows.length === 0) {
+      alert("No visible data to print.");
+      return;
+    }
+
+    let tableRows = "";
+
+    rows.forEach((row) => {
+      const cells = row.querySelectorAll("td");
+
+      tableRows += `
+      <tr>
+        <td>${cells[0].textContent}</td>
+        <td>${cells[1].textContent}</td>
+        <td>${cells[2].textContent}</td>
+        <td>${cells[3].textContent}</td>
+        <td>${cells[4].textContent}</td>
+        <td>${cells[5].textContent}</td>
+        <td>${cells[6].textContent}</td>
+        <td>${cells[7].textContent}</td>
+        <td>${cells[8].textContent}</td>
+      </tr>
+    `;
+    });
+
+    const printWindow = window.open("", "_blank");
+
+    printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Job Applicants</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+          }
+          h2 {
+            text-align: center;
+            margin-bottom: 20px;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+          }
+          th, td {
+            border: 1px solid #000;
+            padding: 6px;
+            text-align: left;
+          }
+          th {
+            background: #f2f2f2;
+          }
+          @media print {
+            body {
+              margin: 0;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <h2>Job Applicant List</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>First Name</th>
+              <th>Middle Name</th>
+              <th>Last Name</th>
+              <th>Suffix</th>
+              <th>Job Title</th>
+              <th>Establishment</th>
+              <th>Status</th>
+              <th>Date Applied</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRows}
+          </tbody>
+        </table>
+      </body>
+    </html>
+  `);
+
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
   }
 })();

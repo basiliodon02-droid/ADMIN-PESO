@@ -152,51 +152,15 @@
                   <th>Details</th>
                   <th align="center">Status</th>
                   <th align="center">Match Points</th>
-                  <!-- <th class="text-center">Actions</th> -->
                 </tr>
               </thead>
               <tbody id="tableBody">
-                <!-- <tr>
-                  <td>1</td>
-                  <td>Juan Dela Cruz</td>
-                  <td>Electrician</td>
-                  <td>Electrical Maintenance Technician</td>
-                  <td>PowerWorks GenSan</td> -->
-                <!-- <td>87%</td> -->
-                <!-- <td><span class="badge active">Matched</span></td> -->
-                <!-- <td>Oct 7, 2025</td> -->
-                <!-- <td class="action-icons">
-                    <i
-                      style="display: none"
-                      class="bi bi-eye-fill icon-view"
-                      title="View"
-                    ></i>
-                    <i
-                      style="display: none"
-                      class="bi bi-pencil-square icon-edit"
-                      title="Edit"
-                    ></i>
-                    <i
-                      style="display: none"
-                      class="bi bi-check2-square icon-accept"
-                      title="Accept"
-                    ></i>
-                    <i
-                      style="display: none"
-                      class="bi bi-x-square icon-reject"
-                      title="Reject"
-                    ></i>
-                    <i
-                      style="display: none"
-                      class="bi bi-trash3-fill icon-delete"
-                      title="Delete"
-                    ></i>
-                  </td>
-                </tr> -->
               </tbody>
             </table>
           </div>
         </div>
+        <br />
+        <button class="btn-add" style="width: 100px" id="print">Print</button>
       </section>
     </main>
 
@@ -236,6 +200,7 @@
         <h2>👁️ View Match</h2>
         <div id="viewDetails"></div>
         <div class="modal-actions">
+          
           <button class="btn-close-modal" id="closeView">Close</button>
         </div>
       </div>
@@ -254,7 +219,11 @@
 
     <div id="jobModal" class="modal hidden">
   <div class="modal-content">
-    <span id="closeModal" class="close">&times;</span>
+    <div class="modal-actions">
+      <button style='height:50px;' class="btn-cancel" id="closeModal">Close</button>
+      <button style='height:50px;' class="btn-save" id="printModal">Print</button>
+    </div>
+    <br>
     <h2 id="mJob"></h2>
     <p><b>Applicant:</b> <span id="mApplicant"></span></p>
     <p><b>Establishment:</b> <span id="mEst"></span></p>
